@@ -24,7 +24,7 @@ public class ProductsController : ControllerBase
         _productsRepository = productsRepository;
         _mapper = mapper;
     }
-
+    
     [HttpPost]
     public IActionResult Post(ProductCreateVm model)
     {
@@ -35,6 +35,15 @@ public class ProductsController : ControllerBase
             nameof(Get), 
             new { id = product.Id },
             _mapper.Map<ProductVm>(product));
+    }
+    
+    [HttpGet("{id:guid}")]
+    public IActionResult Get(Guid id)
+    {
+        var result = _productsRepository
+            .Read(id);
+
+        return Ok(_mapper.Map<ProductVm>(result));
     }
     
     [HttpPut("{id:guid}")]

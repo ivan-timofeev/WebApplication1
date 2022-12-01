@@ -2,44 +2,49 @@ namespace WebApplication1.Implementation.ViewModels;
 
 public class ErrorVm
 {
-    public Dictionary<string, List<string>> Errors { get; }
+    public Dictionary<string, List<ErrorElement>> Errors { get; }
 
     public ErrorVm()
     {
-        Errors = new Dictionary<string, List<string>>();
+        Errors = new Dictionary<string, List<ErrorElement>>();
     }
 
-    public void AddError(string key, string error)
+    public void AddError(string key, string message, string? data = null)
     {
         if(Errors.TryGetValue(key, out var value))
         {
-            value.Add(error);
+            value.Add(new ErrorElement(message, data));
         }
         else
         {
-            Errors.Add(key, new List<string> { error });
+            Errors.Add(key, new List<ErrorElement> { new ErrorElement(message, data) });
         }
     }
 }
 
+public record ErrorElement(
+    string Message,
+    string? Data
+);
+
 public class ErrorVmBuilder
 {
-    private ErrorVm _instance;
+    private ErrorVm _instance = new ErrorVm();
     
     public ErrorVm Build()
     {
-        return _instance ?? new ErrorVm();
+        return _instance;
     }
 
-    public ErrorVmBuilder WithGlobalError(string error)
+    public ErrorVmBuilder WithGlobalError(string message, string? data = null)
     {
-        _instance.AddError(string.Empty, error);
+        _instance.AddError(string.Empty, message, data);
         return this;
     }
     
-    public ErrorVmBuilder WithError(string key, string error)
+    public ErrorVmBuilder WithError(string key, string message, string? data = null)
     {
-        _instance.AddError(key, error);
+        _instance.AddError(key, message, data);
         return this;
     }
 }

@@ -9,26 +9,62 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
 
-interface IMiddlewareException
+interface IConvertableToErrorVm
 {
     ErrorVm GetErrorVm();
+    int GetHttpStatusCode();
 }
 
-sealed class EntityNotFoundInTheDatabaseException : Exception, IMiddlewareException
+sealed class EntityNotFoundInTheDatabaseException : Exception, IConvertableToErrorVm
 {
+    private Guid _entityId;
+    
     public EntityNotFoundInTheDatabaseException(Guid entityId)
         : base("Entity was not found in the database.")
     {
+        _entityId = entityId;
         Data["EntityId"] = entityId;
-
-        var t = new ModelStateDictionary();
     }
 
     public ErrorVm GetErrorVm()
     {
         return new ErrorVmBuilder()
-            .WithError("EntityId", "")
+            .WithError("Id", "Entity was not found in the database.",_entityId.ToString())
             .Build();
+    }
+
+    public int GetHttpStatusCode()
+    {
+        return 404;
+    }
+}
+
+sealed class OneOrMoreEntitiesNotFoundInTheDatabaseException : Exception, IConvertableToErrorVm
+{
+    private readonly Guid[] _entitiesIds;
+    
+    public OneOrMoreEntitiesNotFoundInTheDatabaseException(params Guid[] entitiesIds)
+        : base("Entity was not found in the database.")
+    {
+        _entitiesIds = entitiesIds;
+        Data["EntitiesIds"] = _entitiesIds;
+    }
+    
+    public ErrorVm GetErrorVm()
+    {
+        var errorVm = new ErrorVm();
+
+        foreach (var entityId in _entitiesIds)
+        {
+            errorVm.AddError("Id", "Entity was not found in the database.", entityId.ToString());
+        }
+
+        return errorVm;
+    }
+    
+    public int GetHttpStatusCode()
+    {
+        return 404;
     }
 }
 
@@ -55,14 +91,27 @@ public class ProductsRepository : IRepository<Product>
 
     public Product Read(Guid id)
     {
-        return GetProductsSource()
+        var product = GetProductsSource()
             .AsNoTracking()
-            .First(x => x.Id == id);
+            .FirstOrDefault(x => x.Id == id);
+
+        if (product is null)
+        {
+            throw new EntityNotFoundInTheDatabaseException(id);
+        }
+
+        return product;
     }
 
     public Product Update(Guid entityId, Product newEntityState)
     {
-        var product = _dbContext.Products.First(x => x.Id == entityId);
+        var product = GetProductsSource()
+            .FirstOrDefault(x => x.Id == entityId);
+        
+        if (product is null)
+        {
+            throw new EntityNotFoundInTheDatabaseException(entityId);
+        }
 
         product.Name = newEntityState.Name;
         product.Description = newEntityState.Description;
@@ -76,10 +125,13 @@ public class ProductsRepository : IRepository<Product>
 
     public void Delete(Guid entityId)
     {
-        var source = _dbContext.Products
-            .Include(x => x.ProductCharacteristics);
-
-        var product = source.First(x => x.Id == entityId);
+        var product = GetProductsSource().FirstOrDefault(x => x.Id == entityId);
+        
+        if (product is null)
+        {
+            throw new EntityNotFoundInTheDatabaseException(entityId);
+        }
+        
         product.IsDeleted = true;
         product.DeletedDateTimeUtc = DateTime.UtcNow;
         
@@ -90,14 +142,14 @@ public class ProductsRepository : IRepository<Product>
     {
         var products = GetProductsSource()
             .Where(x => ids.Contains(x.Id))
-            .AsNoTracking();
+            .AsNoTracking()
+            .ToArray();
 
-        if (products.Count() != ids.Count())
+        var notFoundEntitiesIds = ids.Except(products.Select(x => x.Id));
+
+        if (notFoundEntitiesIds.Any())
         {
-            var exception = new Exception("One or more products was not found in the database");
-            exception.Data.Add("NotFoundEntities", ids.Except(products.Select(x => x.Id)));
-            
-            throw exception;
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
         }
 
         return products.ToArray();
@@ -110,12 +162,11 @@ public class ProductsRepository : IRepository<Product>
             .AsNoTracking()
             .ToArray();
 
-        if (products.Length != ids.Count())
+        var notFoundEntitiesIds = ids.Except(products.Select(x => x.Id));
+
+        if (notFoundEntitiesIds.Any())
         {
-            var exception = new Exception("One or more products was not found in the database");
-            exception.Data.Add("NotFoundEntities", ids.Except(products.Select(x => x.Id)));
-            
-            throw exception;
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
         }
 
         return new PagedModel<Product>(products, page, pageSize, products.Count());

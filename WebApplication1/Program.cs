@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Data;
 using WebApplication1.Data.Repositories;
+using WebApplication1.Helpers.Middlewares;
 using WebApplication1.Helpers.SearchEngine;
 using WebApplication1.Helpers.SearchEngine.DependencyInjection;
 using WebApplication1.Implementation.Helpers;
@@ -34,8 +35,13 @@ builder.Services.AddDbContext<WebApplicationDbContext>(
     x => x.UseNpgsql(@"Server=localhost;Database=my_db;Username=postgres;Password=123456;"));
 builder.Services.AddSearchEngine();
 builder.Services.AddTransient<IRepository<Product>, ProductsRepository>();
+builder.Services.AddLogging(x => x.AddConsole());
+
+var globalLogger = new LoggerFactory().CreateLogger("global");
+builder.Services.AddSingleton<ILogger>((sp) => globalLogger);
 
 var app = builder.Build();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
