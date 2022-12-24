@@ -37,4 +37,19 @@ public class PagedModel<T> : PagedModel
     {
         Items = items ?? Array.Empty<T>();
     }
+
+    public static PagedModel<T> Paginate(IQueryable<T> source, int page, int pageSize)
+    {
+        if (page <= 0)
+            page = 1;
+        
+        var items = source
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToArray();
+
+        var totalItemsCount = source.Count();
+
+        return new PagedModel<T>(items, page, pageSize, totalItemsCount);
+    }
 }

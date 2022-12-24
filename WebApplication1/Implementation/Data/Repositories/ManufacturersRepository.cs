@@ -93,8 +93,7 @@ public class ManufacturersRepository : IRepository<Manufacturer>
     {
         var manufacturers = GetManufacturersSource()
             .Where(x => ids.Contains(x.Id))
-            .AsNoTracking()
-            .ToArray();
+            .AsNoTracking();
 
         var notFoundEntitiesIds = ids.Except(manufacturers.Select(x => x.Id));
 
@@ -103,7 +102,7 @@ public class ManufacturersRepository : IRepository<Manufacturer>
             throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
         }
 
-        return new PagedModel<Manufacturer>(manufacturers, page, pageSize, manufacturers.Count());
+        return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);
     }
 
     public IEnumerable<Manufacturer> Search(string? searchQuery)
@@ -116,10 +115,9 @@ public class ManufacturersRepository : IRepository<Manufacturer>
     public PagedModel<Manufacturer> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var manufacturers = _searchEngine
-            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? string.Empty)
-            .ToArray();
+            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? string.Empty);
 
-        return new PagedModel<Manufacturer>(manufacturers, page, pageSize, manufacturers.Length);
+        return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);
     }
 
     private IQueryable<Manufacturer> GetManufacturersSource()

@@ -95,8 +95,7 @@ public class ProductsRepository : IRepository<Product>
     {
         var products = GetProductsSource()
             .Where(x => ids.Contains(x.Id))
-            .AsNoTracking()
-            .ToArray();
+            .AsNoTracking();
 
         var notFoundEntitiesIds = ids.Except(products.Select(x => x.Id));
 
@@ -105,7 +104,7 @@ public class ProductsRepository : IRepository<Product>
             throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
         }
 
-        return new PagedModel<Product>(products, page, pageSize, products.Count());
+        return PagedModel<Product>.Paginate(products, page, pageSize);
     }
 
     public IEnumerable<Product> Search(string? searchQuery)
@@ -118,10 +117,9 @@ public class ProductsRepository : IRepository<Product>
     public PagedModel<Product> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var products = _searchEngine
-            .ExecuteEngine(GetProductsSource(), searchQuery ?? string.Empty)
-            .ToArray();
+            .ExecuteEngine(GetProductsSource(), searchQuery ?? string.Empty);
 
-        return new PagedModel<Product>(products, page, pageSize, products.Length);
+        return PagedModel<Product>.Paginate(products, page, pageSize);
     }
 
     private IQueryable<Product> GetProductsSource()
