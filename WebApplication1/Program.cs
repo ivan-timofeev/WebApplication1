@@ -35,6 +35,7 @@ builder.Services.AddDbContext<WebApplicationDbContext>(
     x => x.UseNpgsql(@"Server=localhost;Database=my_db;Username=postgres;Password=123456;"));
 builder.Services.AddSearchEngine();
 builder.Services.AddTransient<IRepository<Product>, ProductsRepository>();
+builder.Services.AddTransient<IRepository<Manufacturer>, ManufacturersRepository>();
 builder.Services.AddLogging(x => x.AddConsole());
 
 var globalLogger = new LoggerFactory().CreateLogger("global");
