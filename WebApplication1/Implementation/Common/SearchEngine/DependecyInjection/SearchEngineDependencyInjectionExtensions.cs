@@ -1,5 +1,5 @@
-using WebApplication1.Helpers.SearchEngine.Abstractions;
-namespace WebApplication1.Helpers.SearchEngine.DependencyInjection;
+using WebApplication1.Common.SearchEngine.Abstractions;
+namespace WebApplication1.Common.SearchEngine.DependencyInjection;
 
 public static class SearchEngineDependencyInjectionExtensions
 {

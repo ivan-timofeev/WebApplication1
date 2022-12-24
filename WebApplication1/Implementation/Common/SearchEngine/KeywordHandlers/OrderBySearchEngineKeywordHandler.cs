@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
-using WebApplication1.Helpers.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Abstractions;
 
-namespace WebApplication1.Helpers.SearchEngine;
+namespace WebApplication1.Common.SearchEngine;
 
 interface ICanBeUnary
 {

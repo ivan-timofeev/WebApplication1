@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
 using System.Text;
-using WebApplication1.Helpers.SearchEngine.Abstractions;
-using WebApplication1.Helpers.SearchEngine.Models;
+using WebApplication1.Common.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Models;
 
-namespace WebApplication1.Helpers.SearchEngine;
+namespace WebApplication1.Common.SearchEngine;
 
 public class SearchEngineQueryParser : ISearchEngineQueryParser
 {

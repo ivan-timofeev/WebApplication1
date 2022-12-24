@@ -1,4 +1,4 @@
-namespace WebApplication1.Helpers.SearchEngine.Abstractions;
+namespace WebApplication1.Common.SearchEngine.Abstractions;
 
 public interface ISearchEngine
 {

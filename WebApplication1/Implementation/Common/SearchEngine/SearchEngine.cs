@@ -1,5 +1,5 @@
-namespace WebApplication1.Helpers.SearchEngine;
-using WebApplication1.Helpers.SearchEngine.Abstractions;
+namespace WebApplication1.Common.SearchEngine;
+using WebApplication1.Common.SearchEngine.Abstractions;
 
 public class SearchEngine : ISearchEngine
 {

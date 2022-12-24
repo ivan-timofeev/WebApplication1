@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Data;
 using WebApplication1.Data.Repositories;
-using WebApplication1.Helpers.Middlewares;
-using WebApplication1.Helpers.SearchEngine;
-using WebApplication1.Helpers.SearchEngine.DependencyInjection;
+using WebApplication1.Common.Middlewares;
+using WebApplication1.Common.SearchEngine;
+using WebApplication1.Common.SearchEngine.DependencyInjection;
 using WebApplication1.Implementation.Helpers;
 using WebApplication1.Models;
 

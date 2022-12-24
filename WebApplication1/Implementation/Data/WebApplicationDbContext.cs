@@ -9,7 +9,8 @@ namespace WebApplication1.Data;
 public sealed class WebApplicationDbContext : DbContext
 {
     public DbSet<Product> Products { get; set; }
-    
+    public DbSet<Manufacturer> Manufacturers { get; set; }
+
     public WebApplicationDbContext(DbContextOptions<WebApplicationDbContext> options)
         : base(options)
     {

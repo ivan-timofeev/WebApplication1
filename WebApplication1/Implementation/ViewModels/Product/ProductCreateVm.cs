@@ -3,13 +3,12 @@ using WebApplication1.Attributes;
 
 namespace WebApplication1.ViewModels;
 
-public class ProductCreateVm
-{
+public record ProductCreateVm(
     [Required]
-    public string Name { get; set; }
-    public string? Description { get; set; }
-    public decimal? DefaultPrice { get; set; }
+    string Name,
+    
+    string? Description,
     
     [CanNotBe(typeof(ProductCharacteristicVm), ErrorMessage = "Product characteristic must have a type.")]
-    public ICollection<ProductCharacteristicVm>? ProductCharacteristics { get; set; }
-}
+    IEnumerable<ProductCharacteristicVm>? ProductCharacteristics
+);

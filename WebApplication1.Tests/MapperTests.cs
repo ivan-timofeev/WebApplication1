@@ -18,7 +18,6 @@ public class MapperTests
         {
             Id = Guid.NewGuid(),
             Name = "Car",
-            DefaultPrice = 10000M,
             Description = "Wow, its so nice car",
             ProductCharacteristics = new List<ProductCharacteristic>()
             {

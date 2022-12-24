@@ -1,9 +1,9 @@
 using AutoMapper;
 using DeepEqual.Syntax;
 using Microsoft.Extensions.DependencyInjection;
-using WebApplication1.Helpers.SearchEngine;
-using WebApplication1.Helpers.SearchEngine.Abstractions;
-using WebApplication1.Helpers.SearchEngine.DependencyInjection;
+using WebApplication1.Common.SearchEngine;
+using WebApplication1.Common.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.DependencyInjection;
 using WebApplication1.Implementation.Helpers;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;

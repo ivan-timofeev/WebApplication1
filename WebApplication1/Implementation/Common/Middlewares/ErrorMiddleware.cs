@@ -1,7 +1,7 @@
 using System.Text.Json;
 using WebApplication1.Data.Repositories;
 
-namespace WebApplication1.Helpers.Middlewares;
+namespace WebApplication1.Common.Middlewares;
 
 public class ErrorHandlerMiddleware
 {
@@ -20,7 +20,7 @@ public class ErrorHandlerMiddleware
         }
         catch (Exception ex)
         {
-            if (ex is not IConvertableToErrorVm errorVmProvider)
+            if (ex is not IErrorVmProvider errorVmProvider)
             {
                 await _next(context);
                 return;
@@ -30,7 +30,7 @@ public class ErrorHandlerMiddleware
         }
     }
 
-    private async Task RespondJson(HttpContext context, IConvertableToErrorVm errorVmProvider)
+    private async Task RespondJson(HttpContext context, IErrorVmProvider errorVmProvider)
     {
         var response = context.Response;
         response.ContentType = "application/json";

@@ -1,72 +1,9 @@
-using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Abstraction.Models;
-using WebApplication1.Helpers.SearchEngine.Abstractions;
-using WebApplication1.Implementation.ViewModels;
+using WebApplication1.Common.SearchEngine.Abstractions;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
-
-interface IConvertableToErrorVm
-{
-    ErrorVm GetErrorVm();
-    int GetHttpStatusCode();
-}
-
-sealed class EntityNotFoundInTheDatabaseException : Exception, IConvertableToErrorVm
-{
-    private Guid _entityId;
-    
-    public EntityNotFoundInTheDatabaseException(Guid entityId)
-        : base("Entity was not found in the database.")
-    {
-        _entityId = entityId;
-        Data["EntityId"] = entityId;
-    }
-
-    public ErrorVm GetErrorVm()
-    {
-        return new ErrorVmBuilder()
-            .WithError("Id", "Entity was not found in the database.",_entityId.ToString())
-            .Build();
-    }
-
-    public int GetHttpStatusCode()
-    {
-        return 404;
-    }
-}
-
-sealed class OneOrMoreEntitiesNotFoundInTheDatabaseException : Exception, IConvertableToErrorVm
-{
-    private readonly Guid[] _entitiesIds;
-    
-    public OneOrMoreEntitiesNotFoundInTheDatabaseException(params Guid[] entitiesIds)
-        : base("Entity was not found in the database.")
-    {
-        _entitiesIds = entitiesIds;
-        Data["EntitiesIds"] = _entitiesIds;
-    }
-    
-    public ErrorVm GetErrorVm()
-    {
-        var errorVm = new ErrorVm();
-
-        foreach (var entityId in _entitiesIds)
-        {
-            errorVm.AddError("Id", "Entity was not found in the database.", entityId.ToString());
-        }
-
-        return errorVm;
-    }
-    
-    public int GetHttpStatusCode()
-    {
-        return 404;
-    }
-}
 
 public class ProductsRepository : IRepository<Product>
 {
@@ -115,7 +52,6 @@ public class ProductsRepository : IRepository<Product>
 
         product.Name = newEntityState.Name;
         product.Description = newEntityState.Description;
-        product.DefaultPrice = newEntityState.DefaultPrice;
         product.ProductCharacteristics = newEntityState.ProductCharacteristics;
 
         _dbContext.SaveChanges();

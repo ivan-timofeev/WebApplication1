@@ -1,6 +1,6 @@
-using WebApplication1.Helpers.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Abstractions;
 
-namespace WebApplication1.Helpers.SearchEngine.Models;
+namespace WebApplication1.Common.SearchEngine.Models;
 
 public class SearchEngineQueryUnit
 {
