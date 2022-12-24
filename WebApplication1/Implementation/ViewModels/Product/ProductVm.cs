@@ -6,6 +6,5 @@ public record ProductVm(
     DateTime? UpdatedDateTimeUtc,
     string Name,
     string? Description,
-    decimal? DefaultPrice,
-    IEnumerable<ProductCharacteristicVm>? ProductCharacteristics
+    ICollection<ProductCharacteristicVm>? ProductCharacteristics
 );
