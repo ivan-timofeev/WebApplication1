@@ -6,10 +6,10 @@ using WebApplication1.ViewModels;
 
 namespace WebApplication1.Tests;
 
-public class MapperTests
+public class ProductMappingTests
 {
     [Fact]
-    public void TestMapping_Product_To_ProductVm()
+    public void Map_FromProduct_ToProductVm()
     {
         // Arrange
         var mapper = GetMapper();
