@@ -109,13 +109,15 @@ public class ManufacturersRepository : IRepository<Manufacturer>
     {
         return _searchEngine
             .ExecuteEngine(GetManufacturersSource(), searchQuery ?? "")
+            .AsNoTracking()
             .ToArray();
     }
 
     public PagedModel<Manufacturer> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var manufacturers = _searchEngine
-            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? string.Empty);
+            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? string.Empty)
+            .AsNoTracking();
 
         return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);
     }

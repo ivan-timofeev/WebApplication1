@@ -23,14 +23,7 @@ public class SalePointsRepository : IRepository<SalePoint>
 
     public SalePoint Create(SalePoint entity)
     {
-        if (entity.SaleItems != null && entity.SaleItems.Any())
-        {
-            var productIds = entity.SaleItems
-                .Select(x => x.Product)
-                .Select(x => x.Id);
-
-            EnsureProductsAreExists(productIds);
-        }
+        CheckProducts(entity);
         
         _dbContext.SalePoints.Add(entity);
         _dbContext.SaveChanges();
@@ -127,7 +120,8 @@ public class SalePointsRepository : IRepository<SalePoint>
     public PagedModel<SalePoint> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var salePoints = _searchEngine
-            .ExecuteEngine(GetSalePointsSource(),searchQuery ?? string.Empty);
+            .ExecuteEngine(GetSalePointsSource(),searchQuery ?? string.Empty)
+            .AsNoTracking();
 
         return PagedModel<SalePoint>.Paginate(salePoints, page, pageSize);
     }
@@ -138,6 +132,17 @@ public class SalePointsRepository : IRepository<SalePoint>
             .Include(x => x.SaleItems)
             .Include("SaleItems.SalePoint")
             .Include("SaleItems.Product");
+    }
+
+    private void CheckProducts(SalePoint salePoint)
+    {
+        if (salePoint.SaleItems == null || !salePoint.SaleItems.Any())
+            return;
+
+        var productIds = salePoint.SaleItems
+            .Select(x => x.ProductId);
+
+        EnsureProductsAreExists(productIds);
     }
 
     private void EnsureProductsAreExists(IEnumerable<Guid> productIds)
