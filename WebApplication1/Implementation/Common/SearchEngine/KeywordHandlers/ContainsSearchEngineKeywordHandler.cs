@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using WebApplication1.Common.SearchEngine.Abstractions;
 
 namespace WebApplication1.Common.SearchEngine;
@@ -17,11 +18,11 @@ public class ContainsSearchEngineKeywordHandler : ISearchEngineKeywordHandler
         
         var parameterExp = Expression.Parameter(typeof(T), "type");
         var propertyExp = Expression.Property(parameterExp, attributeName);
-        var method = typeof(string).GetMethod("Contains", new[] { typeof(string) })
-                     ?? throw new InvalidOperationException();
+
+        var propertyNormalizedExp = Expression.Call(propertyExp, GetToLowerMethod());
         
         var someValue = Expression.Constant(attributeValue, attributeType);
-        var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+        var containsMethodExp = Expression.Call(propertyNormalizedExp, GetContainsMethod(), someValue);
         
         var nullCheck = Expression.NotEqual(propertyExp, Expression.Constant(null, typeof(object)));
 
@@ -29,5 +30,17 @@ public class ContainsSearchEngineKeywordHandler : ISearchEngineKeywordHandler
             Expression.AndAlso(nullCheck, containsMethodExp), parameterExp);
 
         return source.Where(condition);
+    }
+
+    private static MethodInfo GetContainsMethod()
+    {
+        return typeof(string).GetMethod("Contains", new[] { typeof(string) })
+               ?? throw new InvalidOperationException();
+    }
+
+    private static MethodInfo GetToLowerMethod()
+    {
+        return typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)
+            ?? throw new InvalidOperationException();
     }
 }
