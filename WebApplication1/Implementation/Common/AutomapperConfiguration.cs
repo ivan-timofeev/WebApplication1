@@ -1,6 +1,7 @@
 using AutoMapper;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
+using WebApplication1.ViewModels.Manufacturer;
 
 namespace WebApplication1.Implementation.Helpers;
 
@@ -23,6 +24,8 @@ public static class AutomapperConfiguration
         cfg.CreateMap<StringProductCharacteristic, StringProductCharacteristicVm>();
         cfg.CreateMap<NumberProductCharacteristic, NumberProductCharacteristicVm>();
         cfg.CreateMap<Product, ProductVm>();
+
+        cfg.CreateMap<Manufacturer, ManufacturerVm>();
     }
     
     private static void ConfigureViewModelToModel(IMapperConfigurationExpression cfg)
@@ -35,6 +38,9 @@ public static class AutomapperConfiguration
         cfg.CreateMap<ProductVm, Product>();
         cfg.CreateMap<ProductCreateVm, Product>();
         cfg.CreateMap<ProductUpdateVm, Product>();
+
+        cfg.CreateMap<ManufacturerCreateVm, Manufacturer>();
+        cfg.CreateMap<ManufacturerUpdateVm, Manufacturer>();
     }
 
     public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)
