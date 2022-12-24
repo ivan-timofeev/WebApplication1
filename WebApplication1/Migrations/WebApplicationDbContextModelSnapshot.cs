@@ -22,7 +22,7 @@ namespace WebApplication1.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApplication1.Models.Product", b =>
+            modelBuilder.Entity("WebApplication1.Models.Manufacturer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -31,8 +31,31 @@ namespace WebApplication1.Migrations
                     b.Property<DateTime>("CreatedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("DefaultPrice")
-                        .HasColumnType("numeric");
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Manufacturers");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DeletedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");
