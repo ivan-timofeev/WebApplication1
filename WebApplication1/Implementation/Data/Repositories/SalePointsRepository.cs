@@ -23,7 +23,7 @@ public class SalePointsRepository : IRepository<SalePoint>
 
     public SalePoint Create(SalePoint entity)
     {
-        CheckProducts(entity);
+        EnsureProductsAreExists(entity);
         
         _dbContext.SalePoints.Add(entity);
         _dbContext.SaveChanges();
@@ -34,7 +34,6 @@ public class SalePointsRepository : IRepository<SalePoint>
     public SalePoint Read(Guid id)
     {
         var salePoint = GetSalePointsSource()
-            .AsNoTracking()
             .FirstOrDefault(x => x.Id == id);
 
         if (salePoint is null)
@@ -54,8 +53,12 @@ public class SalePointsRepository : IRepository<SalePoint>
         {
             throw new EntityNotFoundInTheDatabaseException(entityId);
         }
+        
+        EnsureProductsAreExists(newEntityState);
 
         salePoint.Name = newEntityState.Name;
+        salePoint.Address = newEntityState.Address;
+        salePoint.SaleItems = newEntityState.SaleItems;
 
         _dbContext.SaveChanges();
 
@@ -81,7 +84,6 @@ public class SalePointsRepository : IRepository<SalePoint>
     {
         var salePoints = GetSalePointsSource()
             .Where(x => ids.Contains(x.Id))
-            .AsNoTracking()
             .ToArray();
 
         var notFoundEntitiesIds = ids.Except(salePoints.Select(x => x.Id));
@@ -97,8 +99,7 @@ public class SalePointsRepository : IRepository<SalePoint>
     public PagedModel<SalePoint> ReadWithPagination(IEnumerable<Guid> ids, int page, int pageSize)
     {
         var salePoints = GetSalePointsSource()
-            .Where(x => ids.Contains(x.Id))
-            .AsNoTracking();
+            .Where(x => ids.Contains(x.Id));
 
         var notFoundEntitiesIds = ids.Except(salePoints.Select(x => x.Id));
 
@@ -120,8 +121,7 @@ public class SalePointsRepository : IRepository<SalePoint>
     public PagedModel<SalePoint> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var salePoints = _searchEngine
-            .ExecuteEngine(GetSalePointsSource(),searchQuery ?? string.Empty)
-            .AsNoTracking();
+            .ExecuteEngine(GetSalePointsSource(),searchQuery ?? string.Empty);
 
         return PagedModel<SalePoint>.Paginate(salePoints, page, pageSize);
     }
@@ -129,12 +129,12 @@ public class SalePointsRepository : IRepository<SalePoint>
     private IQueryable<SalePoint> GetSalePointsSource()
     {
         return _dbContext.SalePoints
-            .Include(x => x.SaleItems)
-            .Include("SaleItems.SalePoint")
-            .Include("SaleItems.Product");
+            .Include(x => x.SaleItems)!
+            .ThenInclude(x => x.Product);
     }
 
-    private void CheckProducts(SalePoint salePoint)
+    /// <exception cref="OneOrMoreEntitiesNotFoundInTheDatabaseException"></exception>
+    private void EnsureProductsAreExists(SalePoint salePoint)
     {
         if (salePoint.SaleItems == null || !salePoint.SaleItems.Any())
             return;
@@ -142,11 +142,13 @@ public class SalePointsRepository : IRepository<SalePoint>
         var productIds = salePoint.SaleItems
             .Select(x => x.ProductId);
 
-        EnsureProductsAreExists(productIds);
-    }
+        var products = _productsRepository
+            .Read(productIds)
+            .ToArray();
 
-    private void EnsureProductsAreExists(IEnumerable<Guid> productIds)
-    {
-        _productsRepository.Read(productIds);
+        foreach (var saleItem in salePoint.SaleItems)
+        {
+            saleItem.Product = products.Single(x => x.Id == saleItem.ProductId);
+        }
     }
 }

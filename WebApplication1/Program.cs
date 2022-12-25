@@ -36,6 +36,7 @@ builder.Services.AddDbContext<WebApplicationDbContext>(
 builder.Services.AddSearchEngine();
 builder.Services.AddTransient<IRepository<Product>, ProductsRepository>();
 builder.Services.AddTransient<IRepository<Manufacturer>, ManufacturersRepository>();
+builder.Services.AddTransient<IRepository<SalePoint>, SalePointsRepository>();
 builder.Services.AddLogging(x => x.AddConsole());
 
 var globalLogger = new LoggerFactory().CreateLogger("global");

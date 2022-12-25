@@ -59,6 +59,22 @@ public class SaleItemMappingTests
             .IgnoreUnmatchedProperties()
             .Assert();
     }
+    
+    [Fact]
+    public void Map_FromSalePointCreateVm_ToSalePoint()
+    {
+        // Arrange
+        var mapper = GetMapper();
+        var salePointCreateVm = AutoBogus.AutoFaker.Generate<SalePointCreateVm>();
+
+        // Act
+        var mapped = mapper.Map<SalePoint>(salePointCreateVm);
+
+        // Assert
+        mapped.WithDeepEqual(salePointCreateVm)
+            .IgnoreUnmatchedProperties()
+            .Assert();
+    }
 
     private Mapper GetMapper()
     {
