@@ -115,6 +115,78 @@ namespace WebApplication1.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("ProductCharacteristic");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.SaleItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("PurchasePrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SalePointId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("SellingPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SalePointId");
+
+                    b.ToTable("SaleItem");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.SalePoint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SalePoints");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.NumberProductCharacteristic", b =>
                 {
                     b.HasBaseType("WebApplication1.Models.ProductCharacteristic");
@@ -148,9 +220,33 @@ namespace WebApplication1.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.SaleItem", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.SalePoint", "SalePoint")
+                        .WithMany("SaleItems")
+                        .HasForeignKey("SalePointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("SalePoint");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Product", b =>
                 {
                     b.Navigation("ProductCharacteristics");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.SalePoint", b =>
+                {
+                    b.Navigation("SaleItems");
                 });
 #pragma warning restore 612, 618
         }

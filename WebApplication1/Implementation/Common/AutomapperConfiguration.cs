@@ -31,6 +31,12 @@ public static class AutomapperConfiguration
             .ReverseMap();
         cfg.CreateMap<SalePoint, SalePointVm>()
             .ReverseMap();
+
+        cfg.CreateMap<SalePointCreateVm, SalePoint>();
+        cfg.CreateMap<SaleItemCreateVm, SaleItem>();
+
+        cfg.CreateMap<SalePointUpdateVm, SalePoint>();
+        cfg.CreateMap<SaleItemUpdateVm, SaleItem>();
     }
     
     private static void ConfigureViewModelToModel(IMapperConfigurationExpression cfg)
