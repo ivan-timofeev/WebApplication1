@@ -4,5 +4,5 @@ namespace WebApplication1.Models;
 
 public class Customer : DomainModel
 {
-    
+    public ICollection<Order>? Orders { get; set; }
 }
