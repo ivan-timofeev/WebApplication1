@@ -25,7 +25,9 @@ public class OrderStateHierarchicalItem
 
 public enum OrderStateEnum
 {
-    Created,
+    Creating,
+    ConfirmedByUser,
+    ProcessingOrder,
     AssemblingOrder,
     AwaitingPayment,
     AwaitingForDelivery,

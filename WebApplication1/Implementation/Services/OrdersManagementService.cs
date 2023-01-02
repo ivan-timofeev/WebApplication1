@@ -8,7 +8,9 @@ public interface IOrdersManagementService
 {
     Order CreateOrder(CreateOrderVm model);
     Order GetOrder(Guid orderId);
-    void SetOrderState(Guid orderId, OrderStateEnum newOrderState, string? description = null);
+    Order AddToOrder(AddToOrderVm model);
+    Order UpdateOrderState(Guid orderId, OrderStateEnum newOrderState, string? description = null);
+    void DeleteOrder(Guid orderId);
 }
 
 public class OrdersManagementService : IOrdersManagementService
