@@ -1,21 +1,28 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Common.SearchEngine.Abstractions;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
 
-public class OrdersRepository : IRepository<Order>
+public class OrdersRepository : IOrdersRepository
 {
     private readonly WebApplicationDbContext _dbContext;
     private readonly ISearchEngine _searchEngine;
+    private readonly IRepository<Customer> _customersRepository;
+    private readonly ISalePointsRepository _salePointsRepository;
 
     public OrdersRepository(
         WebApplicationDbContext dbContext,
-        ISearchEngine searchEngine)
+        ISearchEngine searchEngine,
+        IRepository<Customer> customersRepository,
+        ISalePointsRepository salePointsRepository)
     {
         _dbContext = dbContext;
         _searchEngine = searchEngine;
+        _customersRepository = customersRepository;
+        _salePointsRepository = salePointsRepository;
     }
 
     public Order Create(Order entity)
@@ -49,6 +56,20 @@ public class OrdersRepository : IRepository<Order>
             throw new EntityNotFoundInTheDatabaseException(entityId);
         }
 
+        order.CustomerId = newEntityState.CustomerId;
+        order.Customer = _customersRepository.Read(newEntityState.CustomerId);
+        order.SalePointId = newEntityState.SalePointId;
+        order.SalePoint = _salePointsRepository.Read(newEntityState.SalePointId);
+
+        var orderProductIds = newEntityState.OrderedItems.Select(x => x.ProductId).ToArray();
+
+        _salePointsRepository.EnsureSalePointContainsTheseProducts(
+            newEntityState.SalePointId, 
+            orderProductIds);
+
+        order.OrderedItems = newEntityState.OrderedItems;
+        order.OrderStateHierarchical = newEntityState.OrderStateHierarchical;
+
         _dbContext.SaveChanges();
 
         return order;
@@ -76,11 +97,13 @@ public class OrdersRepository : IRepository<Order>
             .AsNoTracking()
             .ToArray();
 
-        var notFoundEntitiesIds = ids.Except(orders.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(orders.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds);
         }
 
         return orders.ToArray();
@@ -89,10 +112,11 @@ public class OrdersRepository : IRepository<Order>
     public PagedModel<Order> ReadWithPagination(IEnumerable<Guid> ids, int page, int pageSize)
     {
         var orders = GetOrdersSource()
-            .Where(x => ids.Contains(x.Id))
-            .AsNoTracking();
+            .Where(x => ids.Contains(x.Id));
 
-        var notFoundEntitiesIds = ids.Except(orders.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(orders.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
@@ -121,6 +145,10 @@ public class OrdersRepository : IRepository<Order>
 
     private IQueryable<Order> GetOrdersSource()
     {
-        return _dbContext.Orders;
+        return _dbContext.Orders
+            .Include(x => x.Customer)
+            .Include(x => x.SalePoint)
+            .Include(x => x.OrderStateHierarchical)
+            .Include(x => x.OrderedItems);
     }
 }

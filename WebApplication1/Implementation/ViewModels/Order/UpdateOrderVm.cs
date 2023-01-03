@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using WebApplication1.Models;
 using WebApplication1.ViewModels;
 
 namespace WebApplication1.Implementation.ViewModels.Order;
 
-public record AddToOrderVm(
+public record UpdateOrderVm(
     [Required]
-    Guid ProductId,
+    Guid OrderId,
     [Required]
-    int Quantity
+    OrderStateEnum NewOrderState,
+    string? Description
 );

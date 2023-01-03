@@ -7,5 +7,6 @@ public class SalePoint : DomainModel
     public string Name { get; set; }
     public string? Address { get; set; }
 
-    public ICollection<SaleItem>? SaleItems { get; set; }
+    public ICollection<SaleItem> SaleItems { get; set; }
+        = new List<SaleItem>();
 }

@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Common.SearchEngine.Abstractions;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
 
-public class SalePointsRepository : IRepository<SalePoint>
+public class SalePointsRepository : ISalePointsRepository
 {
     private readonly IRepository<Product> _productsRepository;
     private readonly WebApplicationDbContext _dbContext;
@@ -126,6 +127,22 @@ public class SalePointsRepository : IRepository<SalePoint>
         return PagedModel<SalePoint>.Paginate(salePoints, page, pageSize);
     }
 
+    public void EnsureSalePointContainsTheseProducts(Guid salePointId, params Guid[] productsIds)
+    {
+        var salePoint = Read(salePointId);
+
+        var foundProductIds = salePoint.SaleItems
+            .Where(x => productsIds.Contains(x.ProductId))
+            .Select(x => x.ProductId)
+            .ToArray();
+        var notFoundProductIds = productsIds
+            .Except(foundProductIds)
+            .ToArray();
+
+        if (notFoundProductIds.Any())
+            throw new Exception("ТОРГОВАЯ ТОЧКА НЕ СОДЕРЖИТ УКАЗАННЫХ ПРОДУКТОВ (TODO: сделать отдельный експешен)");
+    }
+
     private IQueryable<SalePoint> GetSalePointsSource()
     {
         return _dbContext.SalePoints
@@ -136,7 +153,7 @@ public class SalePointsRepository : IRepository<SalePoint>
     /// <exception cref="OneOrMoreEntitiesNotFoundInTheDatabaseException"></exception>
     private void EnsureProductsAreExists(SalePoint salePoint)
     {
-        if (salePoint.SaleItems == null || !salePoint.SaleItems.Any())
+        if (!salePoint.SaleItems.Any())
             return;
 
         var productIds = salePoint.SaleItems
@@ -148,7 +165,7 @@ public class SalePointsRepository : IRepository<SalePoint>
 
         foreach (var saleItem in salePoint.SaleItems)
         {
-            saleItem.Product = products.Single(x => x.Id == saleItem.ProductId);
+            saleItem.Product = products.First(x => x.Id == saleItem.ProductId);
         }
     }
 }

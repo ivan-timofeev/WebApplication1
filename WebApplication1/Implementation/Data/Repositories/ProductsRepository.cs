@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Common.SearchEngine.Abstractions;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
 
-public class ProductsRepository : IRepository<Product>
+public class ProductsRepository : IProductsRepository
 {
     private readonly WebApplicationDbContext _dbContext;
     private readonly ISearchEngine _searchEngine;
