@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
@@ -12,12 +13,12 @@ namespace WebApplication1.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly ILogger<ProductsController> _logger;
-    private readonly IRepository<Product> _productsRepository;
+    private readonly IProductsRepository _productsRepository;
     private readonly IMapper _mapper;
 
     public ProductsController(
         ILogger<ProductsController> logger,
-        IRepository<Product> productsRepository,
+        IProductsRepository productsRepository,
         IMapper mapper)
     {
         _logger = logger;

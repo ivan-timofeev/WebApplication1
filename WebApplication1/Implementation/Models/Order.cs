@@ -30,15 +30,15 @@ public class OrderStateHierarchicalItem
     public int SerialNumber { get; set; }
     public DateTime EnteredDateTimeUtc { get; set; }
     public OrderStateEnum State { get; set; }
-    public string? Description { get; set; }
+    public string? EnterDescription { get; set; }
+    public string? Details { get; set; }
 }
 
 public enum OrderStateEnum
 {
     Creating,
-    ConfirmedByUser,
-    ProcessingOrder,
-    AssemblingOrder,
+    AwaitingAssembling,
+    Assembling,
     AwaitingPayment,
     AwaitingForDelivery,
     DeliveryInProgress,

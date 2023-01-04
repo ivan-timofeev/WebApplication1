@@ -12,8 +12,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(WebApplicationDbContext))]
-    [Migration("20221224170457_AddSalePoint1")]
-    partial class AddSalePoint1
+    [Migration("20230104025710_OrdersManagementServiceImplemented")]
+    partial class OrdersManagementServiceImplemented
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,29 @@ namespace WebApplication1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("WebApplication1.Models.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
+                });
 
             modelBuilder.Entity("WebApplication1.Models.Manufacturer", b =>
                 {
@@ -35,6 +58,9 @@ namespace WebApplication1.Migrations
 
                     b.Property<DateTime?>("DeletedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageUri")
+                        .HasColumnType("text");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
@@ -50,6 +76,83 @@ namespace WebApplication1.Migrations
                     b.ToTable("Manufacturers");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("SalePointId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("SalePointId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SalePointId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SalePointId");
+
+                    b.ToTable("OrderItem");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -63,6 +166,9 @@ namespace WebApplication1.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUri")
                         .HasColumnType("text");
 
                     b.Property<bool?>("IsDeleted")
@@ -211,6 +317,86 @@ namespace WebApplication1.Migrations
                     b.HasDiscriminator().HasValue("StringProductCharacteristic");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Order", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Customer", "Customer")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.SalePoint", "SalePoint")
+                        .WithMany()
+                        .HasForeignKey("SalePointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("WebApplication1.Models.OrderStateHierarchicalItem", "OrderStateHierarchical", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Details")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("EnterDescription")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime>("EnteredDateTimeUtc")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<int>("SerialNumber")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("State")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("OrderId", "Id");
+
+                            b1.ToTable("OrderStateHierarchicalItem");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("OrderStateHierarchical");
+
+                    b.Navigation("SalePoint");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.OrderItem", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Order", "Order")
+                        .WithMany("OrderedItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.SalePoint", "SalePoint")
+                        .WithMany()
+                        .HasForeignKey("SalePointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("SalePoint");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.ProductCharacteristic", b =>
                 {
                     b.HasOne("WebApplication1.Models.Product", "Product")
@@ -239,6 +425,16 @@ namespace WebApplication1.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("SalePoint");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Customer", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Order", b =>
+                {
+                    b.Navigation("OrderedItems");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Product", b =>

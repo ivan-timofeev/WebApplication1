@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Abstraction.Models;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
@@ -12,12 +12,12 @@ namespace WebApplication1.Controllers;
 public class SalePointsController : ControllerBase
 {
     private readonly ILogger<SalePointsController> _logger;
-    private readonly IRepository<SalePoint> _salePointsRepository;
+    private readonly ISalePointsRepository _salePointsRepository;
     private readonly IMapper _mapper;
 
     public SalePointsController(
         ILogger<SalePointsController> logger,
-        IRepository<SalePoint> salePointsRepository,
+        ISalePointsRepository salePointsRepository,
         IMapper mapper)
     {
         _logger = logger;

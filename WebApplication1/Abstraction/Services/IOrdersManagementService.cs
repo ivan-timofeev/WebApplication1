@@ -8,6 +8,6 @@ public interface IOrdersManagementService
     Order CreateOrder(CreateOrderVm model);
     Order GetOrder(Guid orderId);
     Order UpdateOrderPosition(UpdateOrderPositionVm model);
-    Order UpdateOrderState(UpdateOrderVm model);
+    Order UpdateOrderState(UpdateOrderStateVm model);
     void DeleteOrder(Guid orderId);
 }

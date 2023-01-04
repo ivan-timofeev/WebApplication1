@@ -5,8 +5,6 @@ using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Data;
-using WebApplication1.Data.Repositories;
-using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
 
@@ -14,20 +12,17 @@ namespace WebApplication1.Services;
 
 public class OrdersManagementService : IOrdersManagementService
 {
-    private readonly IMapper _mapper;
     private readonly IOrdersRepository _ordersRepository;
-    private readonly IRepository<Customer> _customersRepository;
-    private readonly IRepository<SalePoint> _salePointsRepository;
+    private readonly ICustomersRepository _customersRepository;
+    private readonly ISalePointsRepository _salePointsRepository;
     private readonly WebApplicationDbContext _dbContext;
 
     public OrdersManagementService(
-        IMapper mapper,
         IOrdersRepository ordersRepository,
-        IRepository<Customer> customersRepository,
-        IRepository<SalePoint> salePointsRepository,
+        ICustomersRepository customersRepository,
+        ISalePointsRepository salePointsRepository,
         WebApplicationDbContext dbContext)
     {
-        _mapper = mapper;
         _ordersRepository = ordersRepository;
         _customersRepository = customersRepository;
         _salePointsRepository = salePointsRepository;
@@ -49,7 +44,7 @@ public class OrdersManagementService : IOrdersManagementService
                     SerialNumber = 1,
                     EnteredDateTimeUtc = DateTime.UtcNow,
                     State = OrderStateEnum.Creating,
-                    Description = "Заказ создан"
+                    EnterDescription = "Заказ создан"
                 }
             },
             CustomerId = customer.Id,
@@ -122,29 +117,43 @@ public class OrdersManagementService : IOrdersManagementService
         }
     }
 
-    public Order UpdateOrderState(UpdateOrderVm model)
+    public Order UpdateOrderState(UpdateOrderStateVm model)
     {
-        /*
-         * TO DO:
-         * 
-         * Нужно сделать что то типа ордер стейт процессора
-         * процессор должен брать стратегию на основании текущего и следующего стейтов
-         * брать стратегию и вызывать её, передав в нее аргументы (строку с описанием)
-         *
-         * OrderStateProcessingStrategy:
-         *     + Свойство State Source
-         *     + Свойство State Destination
-         *     + Метод void ExecuteStrategy(string Description)
-         *
-         * OrderStateStrategyResolver:
-         *     + Метод GetStrategy(State source, State destination)
-         *     + CTOR: (IEnumerable<OrderStateProcessingStrategy> registeredStrategies) 
-         */
-        throw new NotImplementedException();
+        _dbContext.Database.BeginTransaction(IsolationLevel.Serializable);
+        var isTransactionCommitted = false;
+        
+        try
+        {
+            var order = _ordersRepository.Read(model.OrderId);
+            var previousStateSerialNumber = order.OrderStateHierarchical.Max(x => x.SerialNumber);
+
+            order.OrderStateHierarchical.Add(new OrderStateHierarchicalItem
+            {
+                SerialNumber = previousStateSerialNumber + 1,
+                EnteredDateTimeUtc = DateTime.UtcNow,
+                State = model.NewOrderState,
+                EnterDescription = model.EnterDescription,
+                Details = model.Details
+            });
+
+            _ordersRepository.Update(order.Id, order);
+            
+            _dbContext.Database. CommitTransaction();
+            isTransactionCommitted = true;
+
+            return order;
+        }
+        finally
+        {
+            if (!isTransactionCommitted)
+            {
+                _dbContext.Database.RollbackTransaction();
+            }
+        }
     }
 
     public void DeleteOrder(Guid orderId)
     {
-        throw new NotImplementedException();
+        _ordersRepository.Delete(orderId);
     }
 }

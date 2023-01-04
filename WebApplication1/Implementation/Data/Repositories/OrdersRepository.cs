@@ -10,13 +10,13 @@ public class OrdersRepository : IOrdersRepository
 {
     private readonly WebApplicationDbContext _dbContext;
     private readonly ISearchEngine _searchEngine;
-    private readonly IRepository<Customer> _customersRepository;
+    private readonly ICustomersRepository _customersRepository;
     private readonly ISalePointsRepository _salePointsRepository;
 
     public OrdersRepository(
         WebApplicationDbContext dbContext,
         ISearchEngine searchEngine,
-        IRepository<Customer> customersRepository,
+        ICustomersRepository customersRepository,
         ISalePointsRepository salePointsRepository)
     {
         _dbContext = dbContext;
@@ -149,6 +149,7 @@ public class OrdersRepository : IOrdersRepository
             .Include(x => x.Customer)
             .Include(x => x.SalePoint)
             .Include(x => x.OrderStateHierarchical)
-            .Include(x => x.OrderedItems);
+            .Include(x => x.OrderedItems)
+            .ThenInclude(x => x.Product);
     }
 }

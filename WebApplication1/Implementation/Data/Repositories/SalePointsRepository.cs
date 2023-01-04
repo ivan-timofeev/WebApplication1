@@ -8,12 +8,12 @@ namespace WebApplication1.Data.Repositories;
 
 public class SalePointsRepository : ISalePointsRepository
 {
-    private readonly IRepository<Product> _productsRepository;
+    private readonly IProductsRepository _productsRepository;
     private readonly WebApplicationDbContext _dbContext;
     private readonly ISearchEngine _searchEngine;
 
     public SalePointsRepository(
-        IRepository<Product> productsRepository,
+        IProductsRepository productsRepository,
         WebApplicationDbContext dbContext,
         ISearchEngine searchEngine)
     {

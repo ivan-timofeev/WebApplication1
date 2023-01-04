@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
@@ -13,12 +14,12 @@ namespace WebApplication1.Controllers;
 public class ManufacturersController : ControllerBase
 {
     private readonly ILogger<ManufacturersController> _logger;
-    private readonly IRepository<Manufacturer> _manufacturersRepository;
+    private readonly IManufacturersRepository _manufacturersRepository;
     private readonly IMapper _mapper;
 
     public ManufacturersController(
         ILogger<ManufacturersController> logger,
-        IRepository<Manufacturer> manufacturersRepository,
+        IManufacturersRepository manufacturersRepository,
         IMapper mapper)
     {
         _logger = logger;
