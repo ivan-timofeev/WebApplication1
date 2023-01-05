@@ -15,6 +15,7 @@ public static class AddAddServicesExtension
         services.AddSearchEngine();
 
         services.AddTransient<IOrdersManagementService, OrdersManagementService>();
+        services.AddScoped<IDatabaseTransactionsManagementService, DatabaseTransactionsManagementService>();
 
         return services;
     }

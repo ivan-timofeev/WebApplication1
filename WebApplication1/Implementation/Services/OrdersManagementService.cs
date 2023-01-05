@@ -13,18 +13,18 @@ public class OrdersManagementService : IOrdersManagementService
     private readonly IOrdersRepository _ordersRepository;
     private readonly ICustomersRepository _customersRepository;
     private readonly ISalePointsRepository _salePointsRepository;
-    private readonly WebApplicationDbContext _dbContext;
+    private readonly IDatabaseTransactionsManagementService _databaseTransactionsManagementService;
 
     public OrdersManagementService(
         IOrdersRepository ordersRepository,
         ICustomersRepository customersRepository,
         ISalePointsRepository salePointsRepository,
-        WebApplicationDbContext dbContext)
+        IDatabaseTransactionsManagementService databaseTransactionsManagementService)
     {
         _ordersRepository = ordersRepository;
         _customersRepository = customersRepository;
         _salePointsRepository = salePointsRepository;
-        _dbContext = dbContext;
+        _databaseTransactionsManagementService = databaseTransactionsManagementService;
     }
 
 
@@ -61,7 +61,7 @@ public class OrdersManagementService : IOrdersManagementService
 
     public Order UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model)
     {
-        _dbContext.Database.BeginTransaction(IsolationLevel.Serializable);
+        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
 
         try
@@ -105,7 +105,7 @@ public class OrdersManagementService : IOrdersManagementService
             _salePointsRepository.Update(salePoint.Id, salePoint);
             _ordersRepository.Update(order.Id, order);
             
-            _dbContext.Database.CommitTransaction();
+            _databaseTransactionsManagementService.CommitTransaction();
             isTransactionCommitted = true;
 
             return order;
@@ -114,14 +114,14 @@ public class OrdersManagementService : IOrdersManagementService
         {
             if (!isTransactionCommitted)
             {
-                _dbContext.Database.RollbackTransaction();
+                _databaseTransactionsManagementService.RollbackTransaction();
             }
         }
     }
 
     public Order UpdateOrderState(Guid orderId, UpdateOrderStateVm model)
     {
-        _dbContext.Database.BeginTransaction(IsolationLevel.Serializable);
+        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
         
         try
@@ -143,7 +143,7 @@ public class OrdersManagementService : IOrdersManagementService
 
             _ordersRepository.Update(order.Id, order);
             
-            _dbContext.Database.CommitTransaction();
+            _databaseTransactionsManagementService.CommitTransaction();
             isTransactionCommitted = true;
 
             return order;
@@ -152,7 +152,7 @@ public class OrdersManagementService : IOrdersManagementService
         {
             if (!isTransactionCommitted)
             {
-                _dbContext.Database.RollbackTransaction();
+                _databaseTransactionsManagementService.RollbackTransaction();
             }
         }
     }
