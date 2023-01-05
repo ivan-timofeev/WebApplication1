@@ -37,6 +37,14 @@ namespace WebApplication1.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("MobilePhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");
 

@@ -27,6 +27,10 @@ public sealed class WebApplicationDbContext : DbContext
         modelBuilder.Entity<StringProductCharacteristic>();
 
         modelBuilder.Entity<Product>().HasQueryFilter(x => x.IsDeleted == null || x.IsDeleted == false);
+        modelBuilder.Entity<SalePoint>().HasQueryFilter(x => x.IsDeleted == null || x.IsDeleted == false);
+        modelBuilder.Entity<Manufacturer>().HasQueryFilter(x => x.IsDeleted == null || x.IsDeleted == false);
+        modelBuilder.Entity<Customer>().HasQueryFilter(x => x.IsDeleted == null || x.IsDeleted == false);
+        modelBuilder.Entity<Order>().HasQueryFilter(x => x.IsDeleted == null || x.IsDeleted == false);
     }
     
     public override int SaveChanges()

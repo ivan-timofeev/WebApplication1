@@ -1,6 +1,8 @@
 using AutoMapper;
+using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
+using WebApplication1.ViewModels.Customer;
 using WebApplication1.ViewModels.Manufacturer;
 
 namespace WebApplication1.Implementation.Helpers;
@@ -37,6 +39,11 @@ public static class AutomapperConfiguration
 
         cfg.CreateMap<SalePointUpdateVm, SalePoint>();
         cfg.CreateMap<SaleItemUpdateVm, SaleItem>();
+
+        cfg.CreateMap<Customer, CustomerVm>();
+
+        cfg.CreateMap<Order, OrderVm>();
+        cfg.CreateMap<OrderStateHierarchicalItem, OrderStateHierarchicalItemVm>();
     }
     
     private static void ConfigureViewModelToModel(IMapperConfigurationExpression cfg)
@@ -52,6 +59,9 @@ public static class AutomapperConfiguration
 
         cfg.CreateMap<ManufacturerCreateVm, Manufacturer>();
         cfg.CreateMap<ManufacturerUpdateVm, Manufacturer>();
+
+        cfg.CreateMap<CustomerCreateVm, Customer>();
+        cfg.CreateMap<CustomerUpdateVm, Customer>();
     }
 
     public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)

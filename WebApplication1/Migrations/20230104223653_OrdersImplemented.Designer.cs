@@ -12,8 +12,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(WebApplicationDbContext))]
-    [Migration("20230104025710_OrdersManagementServiceImplemented")]
-    partial class OrdersManagementServiceImplemented
+    [Migration("20230104223653_OrdersImplemented")]
+    partial class OrdersImplemented
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,6 +38,14 @@ namespace WebApplication1.Migrations
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("MobilePhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");

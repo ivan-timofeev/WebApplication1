@@ -14,13 +14,16 @@ public class Order : DomainModel
     public ICollection<OrderItem> OrderedItems { get; set; }
         = new List<OrderItem>();
 
-    public OrderStateEnum ActualOrderState => OrderStateHierarchical
-        .OrderByDescending(x => x.SerialNumber)
-        .First()
-        .State;
+    public OrderStateEnum ActualOrderState => GetActualOrderState();
 
     public ICollection<OrderStateHierarchicalItem> OrderStateHierarchical { get; set; }
         = new List<OrderStateHierarchicalItem>();
+
+    public OrderStateEnum GetActualOrderState()
+        => OrderStateHierarchical
+            .OrderByDescending(x => x.SerialNumber)
+            .First()
+            .State;
 }
 
 [Owned]

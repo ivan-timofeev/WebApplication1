@@ -1,5 +1,6 @@
 using System.Text.Json;
 using WebApplication1.Common.Middlewares;
+using WebApplication1.Implementation.BackgroundTasks;
 using WebApplication1.Implementation.Helpers.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDatabase();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+
+builder.Services.AddHostedService<CheckExpiredOrdersBackgroundTask>();
 
 var globalLogger = new LoggerFactory().CreateLogger("global");
 builder.Services.AddSingleton<ILogger>((sp) => globalLogger);

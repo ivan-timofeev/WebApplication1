@@ -130,15 +130,13 @@ public class OrdersRepository : IOrdersRepository
     {
         return _searchEngine
             .ExecuteEngine(GetOrdersSource(), searchQuery ?? "")
-            .AsNoTracking()
             .ToArray();
     }
 
     public PagedModel<Order> SearchWithPagination(string? searchQuery, int page, int pageSize)
     {
         var orders = _searchEngine
-            .ExecuteEngine(GetOrdersSource(), searchQuery ?? string.Empty)
-            .AsNoTracking();
+            .ExecuteEngine(GetOrdersSource(), searchQuery ?? string.Empty);
 
         return PagedModel<Order>.Paginate(orders, page, pageSize);
     }

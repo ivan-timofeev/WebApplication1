@@ -29,7 +29,7 @@ public class SalePointsRepository : ISalePointsRepository
         _dbContext.SalePoints.Add(entity);
         _dbContext.SaveChanges();
 
-        return entity;
+        return Read(entity.Id);
     }
 
     public SalePoint Read(Guid id)
@@ -87,7 +87,9 @@ public class SalePointsRepository : ISalePointsRepository
             .Where(x => ids.Contains(x.Id))
             .ToArray();
 
-        var notFoundEntitiesIds = ids.Except(salePoints.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(salePoints.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
@@ -102,7 +104,9 @@ public class SalePointsRepository : ISalePointsRepository
         var salePoints = GetSalePointsSource()
             .Where(x => ids.Contains(x.Id));
 
-        var notFoundEntitiesIds = ids.Except(salePoints.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(salePoints.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
@@ -159,13 +163,9 @@ public class SalePointsRepository : ISalePointsRepository
         var productIds = salePoint.SaleItems
             .Select(x => x.ProductId);
 
+        // TODO: выглядит чудовищно неэффективным, хочется метод типа EnsureExists или AreExists
         var products = _productsRepository
             .Read(productIds)
             .ToArray();
-
-        foreach (var saleItem in salePoint.SaleItems)
-        {
-            saleItem.Product = products.First(x => x.Id == saleItem.ProductId);
-        }
     }
 }

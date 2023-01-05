@@ -6,8 +6,6 @@ namespace WebApplication1.Implementation.ViewModels.Order;
 
 public record UpdateOrderStateVm(
     [Required]
-    Guid OrderId,
-    [Required]
     OrderStateEnum NewOrderState,
     string? EnterDescription,
     string? Details

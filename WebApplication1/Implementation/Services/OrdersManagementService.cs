@@ -1,8 +1,6 @@
 using System.Data;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Abstraction.Data.Repositories;
-using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Data;
 using WebApplication1.Implementation.ViewModels.Order;
@@ -30,7 +28,7 @@ public class OrdersManagementService : IOrdersManagementService
     }
 
 
-    public Order CreateOrder(CreateOrderVm model)
+    public Order CreateOrder(OrderCreateVm model)
     {
         var customer = _customersRepository.Read(model.CustomerId);
         var salePoint = _salePointsRepository.Read(model.SalePointId);
@@ -61,14 +59,18 @@ public class OrdersManagementService : IOrdersManagementService
         return _ordersRepository.Read(orderId);
     }
 
-    public Order UpdateOrderPosition(UpdateOrderPositionVm model)
+    public Order UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model)
     {
         _dbContext.Database.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
 
         try
         {
-            var order = _ordersRepository.Read(model.OrderId);
+            var order = _ordersRepository.Read(orderId);
+
+            if (order.ActualOrderState != OrderStateEnum.Creating)
+                throw new Exception("Данный заказ уже был сформирован. Редактировать его элементы НЕЛЬЗЯ");
+            
             var salePoint = _salePointsRepository.Read(order.SalePointId);
             var saleItem = salePoint.SaleItems.FirstOrDefault(x => x.ProductId == model.ProductId);
 
@@ -117,14 +119,14 @@ public class OrdersManagementService : IOrdersManagementService
         }
     }
 
-    public Order UpdateOrderState(UpdateOrderStateVm model)
+    public Order UpdateOrderState(Guid orderId, UpdateOrderStateVm model)
     {
         _dbContext.Database.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
         
         try
         {
-            var order = _ordersRepository.Read(model.OrderId);
+            var order = _ordersRepository.Read(orderId);
             var previousStateSerialNumber = order.OrderStateHierarchical.Max(x => x.SerialNumber);
 
             order.OrderStateHierarchical.Add(new OrderStateHierarchicalItem
@@ -135,10 +137,13 @@ public class OrdersManagementService : IOrdersManagementService
                 EnterDescription = model.EnterDescription,
                 Details = model.Details
             });
+            
+            if (model.NewOrderState == OrderStateEnum.Canceled && ItIsTheFirstCancellation(order))
+                RemoveProductsReservation(order);
 
             _ordersRepository.Update(order.Id, order);
             
-            _dbContext.Database. CommitTransaction();
+            _dbContext.Database.CommitTransaction();
             isTransactionCommitted = true;
 
             return order;
@@ -155,5 +160,23 @@ public class OrdersManagementService : IOrdersManagementService
     public void DeleteOrder(Guid orderId)
     {
         _ordersRepository.Delete(orderId);
+    }
+    
+    private static bool ItIsTheFirstCancellation(Order order)
+    {
+        return order.OrderStateHierarchical
+                   .FirstOrDefault(x => x.State == OrderStateEnum.Canceled)
+               is null;
+    }
+    
+    private void RemoveProductsReservation(Order order)
+    {
+        var salePoint = _salePointsRepository.Read(order.SalePointId);
+        
+        foreach (var orderItem in order.OrderedItems)
+        {
+            var saleItem = salePoint.SaleItems.First(x => x.ProductId == orderItem.ProductId);
+            saleItem.Quantity += orderItem.Quantity;
+        }
     }
 }

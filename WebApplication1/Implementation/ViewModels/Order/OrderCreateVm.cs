@@ -3,7 +3,7 @@ using WebApplication1.ViewModels;
 
 namespace WebApplication1.Implementation.ViewModels.Order;
 
-public record CreateOrderVm(
+public record OrderCreateVm(
     [Required]
     Guid CustomerId,
     [Required]
