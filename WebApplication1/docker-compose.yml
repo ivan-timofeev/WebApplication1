@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  application-backend:
+    container_name: application-backend
+    image: application-backend
+    restart: always
+    build:
+      context: ..
+      dockerfile: WebApplication1/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - ASPNETCORE_URLS=http://+:8001
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__SqlDatabase=Server=sql-db;Database=my_db;Username=postgres;Password=${SqlDatabasePassword};
+  sql-db:
+    container_name: application-backend-database
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${SqlDatabasePassword}
+      TZ: Europe/Moscow
+      PGTZ: Europe/Moscow

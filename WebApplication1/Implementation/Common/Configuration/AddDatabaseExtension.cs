@@ -12,6 +12,8 @@ public static class AddDatabaseExtension
         if (connectionString == "FROM_ENVIRONMENT")
             throw new Exception("Переменная окружения ConnectionStrings:SqlDatabase не установлена");
         
+        Console.WriteLine(connectionString);
+        
         services.AddDbContext<WebApplicationDbContext>(
             x => x.UseNpgsql(connectionString),
             contextLifetime: ServiceLifetime.Scoped);
