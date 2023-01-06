@@ -1,5 +1,6 @@
-using WebApplication1.Abstraction.Data.Repositories;
+using WebApplication1.Abstraction.Services;
 using WebApplication1.Data;
+using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
 
 namespace WebApplication1.Implementation.BackgroundTasks;
@@ -30,7 +31,7 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
             },
             null,
             TimeSpan.Zero,
-            TimeSpan.FromSeconds(5));
+            TimeSpan.FromMinutes(1));
  
         return Task.CompletedTask;
     }
@@ -43,16 +44,27 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
     private void ExecuteLogic()
     {
         using var scope = _serviceProvider.CreateScope();
+        var ordersManagementService = scope.ServiceProvider.GetRequiredService<IOrdersManagementService>();
         var dbContext = scope.ServiceProvider.GetRequiredService<WebApplicationDbContext>();
             
-        var expiredOrders = dbContext.Orders
+        var expiredOrderIds = dbContext.Orders
             .Where(x => x.OrderStateHierarchical.Count == 1
                         && x.OrderStateHierarchical.First().State == OrderStateEnum.Creating)
             .Where(x => DateTime.UtcNow - x.OrderStateHierarchical.First().EnteredDateTimeUtc
-                        >= TimeSpan.FromSeconds(10))
+                        >= TimeSpan.FromMinutes(15))
             .Select(x => x.Id)
             .ToArray();
-        
-        _logger.LogInformation("Просрочек: " + expiredOrders.Length);
+
+        foreach (var expiredOrderId in expiredOrderIds)
+        {
+            var updateOrderStateVm = new UpdateOrderStateVm(
+                NewOrderState: OrderStateEnum.Canceled,
+                EnterDescription: "Заказ отменен системой",
+                Details: "Время резервации вышло");
+            
+            ordersManagementService.UpdateOrderState(expiredOrderId, updateOrderStateVm);
+            
+            _logger.LogInformation("Резервация отменена: {expiredOrderId}", expiredOrderId);
+        }
     }
 }
