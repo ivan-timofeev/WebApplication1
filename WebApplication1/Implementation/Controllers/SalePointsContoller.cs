@@ -8,7 +8,7 @@ using WebApplication1.ViewModels;
 namespace WebApplication1.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class SalePointsController : ControllerBase
 {
     private readonly ILogger<SalePointsController> _logger;

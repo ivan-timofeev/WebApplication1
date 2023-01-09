@@ -1,16 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Abstraction.Data.Repositories;
-using WebApplication1.Abstraction.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
-using WebApplication1.ViewModels;
 using WebApplication1.ViewModels.Manufacturer;
 
 namespace WebApplication1.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class ManufacturersController : ControllerBase
 {
     private readonly ILogger<ManufacturersController> _logger;
