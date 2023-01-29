@@ -29,7 +29,7 @@ public class SearchEngineFilterBuilderTests
             {
                 new SearchEngineFilter.FilterTokenGroup
                 {
-                    FilterTokens = new IFilterToken[]
+                    FilterTokens = new List<IFilterToken>
                     {
                         new SearchEngineFilter.FilterToken
                         {
@@ -50,7 +50,7 @@ public class SearchEngineFilterBuilderTests
                 },
                 new SearchEngineFilter.FilterTokenGroup
                 {
-                    FilterTokens = new IFilterToken[]
+                    FilterTokens = new List<IFilterToken>
                     {
                         new SearchEngineFilter.FilterToken
                         {

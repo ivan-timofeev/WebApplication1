@@ -44,3 +44,45 @@ public class ContainsSearchEngineKeywordHandler : ISearchEngineKeywordHandler
             ?? throw new InvalidOperationException();
     }
 }
+
+public class ContainsSearchEngineKeywordHandler2
+{
+    public FilterTypeEnum Keyword => FilterTypeEnum.Contains;
+
+    public Expression<Func<T, bool>> HandleKeyword<T>(
+        IQueryable<T> source,
+        string attributeName,
+        object? attributeValue = null)
+    {
+        var attributeType = typeof(T)
+            .GetProperties()
+            .Single(x =>
+                string.Equals(x.Name, attributeName, StringComparison.InvariantCultureIgnoreCase))
+            .PropertyType;
+        
+        var parameterExp = Expression.Parameter(typeof(T), "type");
+        var propertyExp = Expression.Property(parameterExp, attributeName);
+        var propertyNormalizedExp = Expression.Call(propertyExp, GetToLowerMethod());
+        var someValue = Expression.Constant(attributeValue, attributeType);
+        var containsMethodExp = Expression.Call(propertyNormalizedExp, GetContainsMethod(), someValue);
+        var nullCheck = Expression.NotEqual(propertyExp, Expression.Constant(null, typeof(object)));
+
+        var condition = Expression.Lambda<Func<T, bool>>(
+            Expression.AndAlso(nullCheck, containsMethodExp),
+            parameterExp);
+
+        return condition;
+    }
+
+    private static MethodInfo GetContainsMethod()
+    {
+        return typeof(string).GetMethod("Contains", new[] { typeof(string) })
+               ?? throw new InvalidOperationException();
+    }
+
+    private static MethodInfo GetToLowerMethod()
+    {
+        return typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)
+               ?? throw new InvalidOperationException();
+    }
+}

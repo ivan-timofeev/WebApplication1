@@ -2,7 +2,7 @@ namespace WebApplication1.Common.SearchEngine;
 
 public class SearchEngineFilterBuilder
 {
-    private readonly SearchEngineFilter _instance = new SearchEngineFilter();
+    private SearchEngineFilter _instance = new SearchEngineFilter();
 
     public SearchEngineFilterBuilder WithFilterToken(
         string variableName,
@@ -40,20 +40,72 @@ public class SearchEngineFilterBuilder
         };
 
         var x = _instance.FilterTokenGroups.First(x => x == destiny);
-        _instance.FilterTokenGroups.Remove(x);
 
-        var group = new SearchEngineFilter.FilterTokenGroup()
+        switch (x)
         {
-            FilterTokens = new IFilterToken[] { newFilterToken, destiny },
-            Operation = FilterTokenGroupOperationEnum.Or
-        };
-        _instance.FilterTokenGroups.Add(group);
-        filterToken = group;
+            case SearchEngineFilter.FilterToken:
+            {
+                _instance.FilterTokenGroups.Remove(x);
+            
+                var group = new SearchEngineFilter.FilterTokenGroup()
+                {
+                    FilterTokens = new List<IFilterToken> { newFilterToken, destiny },
+                    Operation = FilterTokenGroupOperationEnum.Or
+                };
+            
+                _instance.FilterTokenGroups.Add(group);
+                filterToken = group;
+                return this;
+            }
+            case SearchEngineFilter.FilterTokenGroup filterTokenGroup:
+            {
+                filterTokenGroup.FilterTokens.Add(newFilterToken);
+                filterToken = filterTokenGroup;
+                return this;
+            }
+            default:
+                throw new Exception();
+        }
+    }
+
+    public SearchEngineFilterBuilder WithContains(
+        string variableName,
+        string variableValue,
+        out IFilterToken filterToken)
+    {
+        WithFilterToken(
+            variableName: variableName,
+            variableValue: variableValue,
+            variableType: VariableTypeEnum.String,
+            filterType: FilterTypeEnum.Contains,
+            out var createdToken);
+
+        filterToken = createdToken;
+        return this;
+    }
+    
+    public SearchEngineFilterBuilder WithOrContains(
+        IFilterToken destiny,
+        string variableName,
+        string variableValue,
+        out IFilterToken filterToken)
+    {
+        WithOrFilterToken(
+            destiny,
+            variableName: variableName,
+            variableValue: variableValue,
+            variableType: VariableTypeEnum.String,
+            filterType: FilterTypeEnum.Contains,
+            out var createdToken);
+
+        filterToken = createdToken;
         return this;
     }
 
     public SearchEngineFilter Build()
     {
-        return _instance;
+        var created = _instance;
+        _instance = new SearchEngineFilter();
+        return created;
     }
 }

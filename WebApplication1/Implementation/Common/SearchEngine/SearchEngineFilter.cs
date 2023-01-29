@@ -33,12 +33,11 @@ public enum FilterTypeEnum
 public class SearchEngineFilter
 {
     public List<IFilterToken> FilterTokenGroups { get; init; } = new List<IFilterToken>();
-
     public FilterTokenGroupOperationEnum Operation => FilterTokenGroupOperationEnum.And;
 
     public class FilterTokenGroup : IFilterToken
     {
-        public IFilterToken[] FilterTokens { get; set; }
+        public List<IFilterToken> FilterTokens { get; set; }
         public FilterTokenGroupOperationEnum Operation { get; set; }
     }
     
