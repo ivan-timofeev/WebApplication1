@@ -29,7 +29,8 @@ public class SearchEngineTests
                 Field1 = 2,
                 Field2 = "Hello, world! 2",
                 Field3 = DateTime.Now.AddDays(-2).TruncateHours()
-            },new MyTestClass()
+            },
+            new MyTestClass()
             {
                 Field1 = 2,
                 Field2 = "Hello, world! 3",

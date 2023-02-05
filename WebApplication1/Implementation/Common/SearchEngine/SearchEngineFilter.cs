@@ -12,11 +12,11 @@ public enum FilterTokenGroupOperationEnum
     Or
 }
 
-public enum VariableTypeEnum
+public enum AttributeTypeEnum
 {
     String,
-    IntegerNumber,
-    FloatNumber,
+    Int,
+    Float,
     DateTime,
     Guid
 }
@@ -44,8 +44,8 @@ public class SearchEngineFilter
     public class FilterToken : IFilterToken
     {
         public string VariableName { get; set; }
-        public string VariableValue { get; set; }
-        public VariableTypeEnum VariableType { get; set; }
+        public string AttributeValue { get; set; }
+        public AttributeTypeEnum AttributeType { get; set; }
         public FilterTypeEnum FilterType { get; set; }
     }
 }

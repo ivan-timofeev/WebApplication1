@@ -34,15 +34,15 @@ public class SearchEngineFilterBuilderTests
                         new SearchEngineFilter.FilterToken
                         {
                             VariableName = expectedVariableOneName,
-                            VariableValue = expectedVariableOneFirstValue,
-                            VariableType = VariableTypeEnum.String,
+                            AttributeValue = expectedVariableOneFirstValue,
+                            AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
                             VariableName = expectedVariableOneName,
-                            VariableValue = expectedVariableOneSecondValue,
-                            VariableType = VariableTypeEnum.String,
+                            AttributeValue = expectedVariableOneSecondValue,
+                            AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         }
                     },
@@ -55,15 +55,15 @@ public class SearchEngineFilterBuilderTests
                         new SearchEngineFilter.FilterToken
                         {
                             VariableName = expectedVariableTwoName,
-                            VariableValue = expectedVariableTwoFirstValue,
-                            VariableType = VariableTypeEnum.String,
+                            AttributeValue = expectedVariableTwoFirstValue,
+                            AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
                             VariableName = expectedVariableTwoName,
-                            VariableValue = expectedVariableTwoSecondValue,
-                            VariableType = VariableTypeEnum.String,
+                            AttributeValue = expectedVariableTwoSecondValue,
+                            AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         }
                     },
@@ -79,28 +79,28 @@ public class SearchEngineFilterBuilderTests
         builder.WithFilterToken(
             expectedVariableOneName,
             expectedVariableOneFirstValue,
-            VariableTypeEnum.String,
+            AttributeTypeEnum.String,
             FilterTypeEnum.Equals,
             out var variableOneFilterToken);
         builder.WithOrFilterToken(
             variableOneFilterToken,
             expectedVariableOneName,
             expectedVariableOneSecondValue,
-            VariableTypeEnum.String,
+            AttributeTypeEnum.String,
             FilterTypeEnum.Equals,
             out _);
 
         builder.WithFilterToken(
             expectedVariableTwoName,
             expectedVariableTwoFirstValue,
-            VariableTypeEnum.String,
+            AttributeTypeEnum.String,
             FilterTypeEnum.Equals,
             out var variableTwoFilterToken);
         builder.WithOrFilterToken(
             variableTwoFilterToken,
             expectedVariableTwoName,
             expectedVariableTwoSecondValue,
-            VariableTypeEnum.String,
+            AttributeTypeEnum.String,
             FilterTypeEnum.Equals,
             out _);
 

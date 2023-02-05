@@ -7,15 +7,15 @@ public class SearchEngineFilterBuilder
     public SearchEngineFilterBuilder WithFilterToken(
         string variableName,
         string variableValue,
-        VariableTypeEnum variableType,
+        AttributeTypeEnum attributeType,
         FilterTypeEnum filterType,
         out IFilterToken filterToken)
     {
         filterToken = new SearchEngineFilter.FilterToken
         {
             VariableName = variableName,
-            VariableValue = variableValue,
-            VariableType = variableType,
+            AttributeValue = variableValue,
+            AttributeType = attributeType,
             FilterType = filterType
         };
 
@@ -27,15 +27,15 @@ public class SearchEngineFilterBuilder
         IFilterToken destiny,
         string variableName,
         string variableValue,
-        VariableTypeEnum variableType,
+        AttributeTypeEnum attributeType,
         FilterTypeEnum filterType,
         out IFilterToken filterToken)
     {
         var newFilterToken = new SearchEngineFilter.FilterToken
         {
             VariableName = variableName,
-            VariableValue = variableValue,
-            VariableType = variableType,
+            AttributeValue = variableValue,
+            AttributeType = attributeType,
             FilterType = filterType
         };
 
@@ -76,7 +76,7 @@ public class SearchEngineFilterBuilder
         WithFilterToken(
             variableName: variableName,
             variableValue: variableValue,
-            variableType: VariableTypeEnum.String,
+            attributeType: AttributeTypeEnum.String,
             filterType: FilterTypeEnum.Contains,
             out var createdToken);
 
@@ -94,7 +94,7 @@ public class SearchEngineFilterBuilder
             destiny,
             variableName: variableName,
             variableValue: variableValue,
-            variableType: VariableTypeEnum.String,
+            attributeType: AttributeTypeEnum.String,
             filterType: FilterTypeEnum.Contains,
             out var createdToken);
 
