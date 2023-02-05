@@ -1,4 +1,3 @@
-using System.Globalization;
 using WebApplication1.Common.SearchEngine;
 
 namespace WebApplication1.Tests;
@@ -24,6 +23,8 @@ public class SearchEngineFilterValidatorTests
     [InlineData(FilterTypeEnum.Contains, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
     [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
     [InlineData(FilterTypeEnum.StartWith, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
+    // With access to sub entity "Field6.Field1"
+    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Int, "1", $"{nameof(DummyEntity.Field6)}.{nameof(DummySubEntity.Field1)}")]
     public void ValidateFilter_CorrectFilter_MustValidationPass(
         FilterTypeEnum filterType,
         AttributeTypeEnum attributeType,
@@ -37,7 +38,7 @@ public class SearchEngineFilterValidatorTests
             {
                 new SearchEngineFilter.FilterToken
                 {
-                    VariableName = attributeName,
+                    AttributeName = attributeName,
                     FilterType = filterType,
                     AttributeType = attributeType,
                     AttributeValue = attributeValue
@@ -50,6 +51,7 @@ public class SearchEngineFilterValidatorTests
         var validator = new SearchEngineFilterValidator();
         validator.ValidateFilter(filter, typeof(DummyEntity));
     }
-    
-    record DummyEntity(int Field1, float Field2, DateTime Field3, Guid Field4, string Field5);
+
+    private record DummyEntity(int Field1, float Field2, DateTime Field3, Guid Field4, string Field5, DummySubEntity Field6);
+    private record DummySubEntity(int Field1);
 }

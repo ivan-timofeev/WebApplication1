@@ -43,7 +43,7 @@ public class SearchEngineFilter
     
     public class FilterToken : IFilterToken
     {
-        public string VariableName { get; set; }
+        public string AttributeName { get; set; }
         public string AttributeValue { get; set; }
         public AttributeTypeEnum AttributeType { get; set; }
         public FilterTypeEnum FilterType { get; set; }

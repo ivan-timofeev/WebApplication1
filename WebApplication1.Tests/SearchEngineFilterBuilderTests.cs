@@ -33,14 +33,14 @@ public class SearchEngineFilterBuilderTests
                     {
                         new SearchEngineFilter.FilterToken
                         {
-                            VariableName = expectedVariableOneName,
+                            AttributeName = expectedVariableOneName,
                             AttributeValue = expectedVariableOneFirstValue,
                             AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
-                            VariableName = expectedVariableOneName,
+                            AttributeName = expectedVariableOneName,
                             AttributeValue = expectedVariableOneSecondValue,
                             AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
@@ -54,14 +54,14 @@ public class SearchEngineFilterBuilderTests
                     {
                         new SearchEngineFilter.FilterToken
                         {
-                            VariableName = expectedVariableTwoName,
+                            AttributeName = expectedVariableTwoName,
                             AttributeValue = expectedVariableTwoFirstValue,
                             AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
-                            VariableName = expectedVariableTwoName,
+                            AttributeName = expectedVariableTwoName,
                             AttributeValue = expectedVariableTwoSecondValue,
                             AttributeType = AttributeTypeEnum.String,
                             FilterType = FilterTypeEnum.Equals

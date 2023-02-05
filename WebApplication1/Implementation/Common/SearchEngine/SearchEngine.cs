@@ -65,32 +65,45 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
 
     private static void ValidateFilterToken(SearchEngineFilter.FilterToken filterToken)
     {
-        if (filterToken.FilterType is FilterTypeEnum.LessThan or FilterTypeEnum.MoreThan)
+        var filterType = filterToken.FilterType;
+        var attributeType = filterToken.AttributeType;
+        
+        if (filterType is FilterTypeEnum.LessThan or FilterTypeEnum.MoreThan)
         {
-            if (filterToken.AttributeType is not (AttributeTypeEnum.Float or AttributeTypeEnum.Int or AttributeTypeEnum.DateTime))
+            if (attributeType is not (AttributeTypeEnum.Float or AttributeTypeEnum.Int or AttributeTypeEnum.DateTime))
             {
                 throw new SearchEngineFilterValidationException(message:
                     string.Format("Filter type \"{0}\" cannot be used with value type \"{1}\".",
-                        filterToken.FilterType,
-                        filterToken.AttributeType));
+                        filterType,
+                        attributeType));
+            }
+        }
+
+        if (filterType is FilterTypeEnum.Contains or FilterTypeEnum.StartWith)
+        {
+            if (attributeType is not (AttributeTypeEnum.String))
+            {
+                throw new SearchEngineFilterValidationException(message:
+                    string.Format("Filter type \"{0}\" cannot be used with value type \"{1}\".",
+                        filterType,
+                        attributeType));
             }
         }
     }
     
     private static void ValidateFilterTokenByType(SearchEngineFilter.FilterToken filterToken, Type entityType)
     {
-        var attribute = entityType.GetProperties()
-            .FirstOrDefault(x => filterToken.VariableName.ToLower().Contains(x.Name.ToLower()));
+        var attributeType = GetAttributeType(filterToken.AttributeName, entityType);
 
-        if (attribute is null)
+        if (attributeType is null)
         {
             throw new SearchEngineFilterValidationException(message:
-                string.Format("Entity type \"{0}\" does not contain field \"{1}\".",
+                string.Format("Entity \"{0}\" does not contain attribute with name \"{1}\".",
                     entityType.Name,
-                    filterToken.VariableName));
+                    filterToken.AttributeName));
         }
 
-        var attributeTypeName = GetAttributeTypeName(attribute);
+        var attributeTypeName = GetAttributeTypeName(attributeType);
         var filterAttributeTypeName = filterToken.AttributeType.ToString().ToLower();
 
         if (!filterAttributeTypeName.Contains(attributeTypeName))
@@ -102,9 +115,24 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
         }
     }
 
-    private static string GetAttributeTypeName(PropertyInfo propertyInfo)
+    private static Type? GetAttributeType(string attributeName, Type entityType)
     {
-        var typeName = propertyInfo.PropertyType.Name.ToLower()
+        var split = attributeName.ToLower().Split(".");
+        var buffer = entityType;
+
+        foreach (var attributePathPart in split)
+        {
+            buffer = buffer.GetProperties()
+                .First(x => attributePathPart.ToLower().Contains(x.Name.ToLower()))
+                .PropertyType;
+        }
+
+        return buffer;
+    }
+
+    private static string GetAttributeTypeName(Type attributeType)
+    {
+        var typeName = attributeType.Name.ToLower()
             .Replace("single", "float")
             .Replace("double", "float");
         return Regex.Replace(typeName, @"[\d-]", string.Empty);
@@ -246,7 +274,7 @@ public class SearchEngine2 // : ISearchEngine
     private Expression<Func<T, bool>> HandleKeyword<T>(IQueryable<T> source, SearchEngineFilter.FilterToken filterToken)
     {
         var testHandler = new ContainsSearchEngineKeywordHandler2();
-        return testHandler.HandleKeyword(source, filterToken.VariableName, filterToken.AttributeValue);
+        return testHandler.HandleKeyword(source, filterToken.AttributeName, filterToken.AttributeValue);
     }
 
     private static Expression<Func<T, bool>> AndAlso<T>(

@@ -13,7 +13,7 @@ public class SearchEngineFilterBuilder
     {
         filterToken = new SearchEngineFilter.FilterToken
         {
-            VariableName = variableName,
+            AttributeName = variableName,
             AttributeValue = variableValue,
             AttributeType = attributeType,
             FilterType = filterType
@@ -33,7 +33,7 @@ public class SearchEngineFilterBuilder
     {
         var newFilterToken = new SearchEngineFilter.FilterToken
         {
-            VariableName = variableName,
+            AttributeName = variableName,
             AttributeValue = variableValue,
             AttributeType = attributeType,
             FilterType = filterType
