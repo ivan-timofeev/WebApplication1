@@ -15,7 +15,7 @@ namespace WebApplication1.Tests;
 public class SearchEngine2Tests
 {
     [Fact]
-    public void Test1()
+    public void ExecuteEngine_CorrectSimpleFilter_ShouldReturnFilteredCollection()
     {
         // Arrange
         var item1 = new DummyEntity(Field1: "1", Field2: "2");
@@ -25,10 +25,10 @@ public class SearchEngine2Tests
         var data = new List<DummyEntity> { item1, item2, item3 };
         // ( Field1 = 1 || Field1 = 2 ) && Field2 = 2
         var filter = new SearchEngineFilterBuilder()
-            .WithContains("Field1", "1", out var filterForA)
-            .WithOrContains(filterForA, "Field1", "2", out filterForA)
-            .WithOrContains(filterForA, "Field1", "3", out filterForA)
-            .WithContains("Field2", "2", out _)
+            .WithContains("Field1", "1", out var filterForField1)
+            .WithOrContains(filterForField1, "Field1", "2", out filterForField1)
+            .WithContains("Field2", "2", out var filterForField2)
+            .WithOrContains(filterForField2, "Field2", "3", out filterForField2)
             .Build();
 
 
@@ -49,6 +49,38 @@ public class SearchEngine2Tests
         Assert.Contains(item2, filtered);
         validatorMock.Verify(x => x.ValidateFilter(filter, typeof(DummyEntity)));
     }
+    
+    [Fact]
+    public void ExecuteEngine_CorrectSimpleFilterWithLevelTwoAttributeAccess_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new ComplexDummyEntity(Field1: "1", Field2: new SubDummyEntity(Field3: "2"));
+        var item2 = new ComplexDummyEntity(Field1: "3", Field2: new SubDummyEntity(Field3: "4"));
+        var item3 = new ComplexDummyEntity(Field1: "5", Field2: new SubDummyEntity(Field3: "6"));
+
+        var data = new List<ComplexDummyEntity> { item1, item2, item3 };
+        // Field1 = 1 && Field2.Field3 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithContains("Field1", "1", out _)
+            .WithContains("Field2.Field3", "2", out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = new SearchEngine2(
+            CreateMock<ISearchEngineFilterValidator>(out var validatorMock),
+            Mock.Of<ISearchEngineKeywordHandlerFinder>());
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+        validatorMock.Verify(x => x.ValidateFilter(filter, typeof(ComplexDummyEntity)));
+    }
 
     private static T CreateMock<T>(out Mock<T> mock)
         where T : class
@@ -59,12 +91,13 @@ public class SearchEngine2Tests
 
     private ISearchEngine GetSearchEngine()
     {
-        var services = new ServiceCollection();
-        services.AddSearchEngine();
-        var sp = services.BuildServiceProvider();
-        
-        return sp.GetRequiredService<ISearchEngine>();
+        return new ServiceCollection()
+            .AddSearchEngine()
+            .BuildServiceProvider()
+            .GetRequiredService<ISearchEngine>();
     }
 
     record DummyEntity(string Field1, string Field2);
+    record ComplexDummyEntity(string Field1, SubDummyEntity Field2);
+    record SubDummyEntity(string Field3);
 }

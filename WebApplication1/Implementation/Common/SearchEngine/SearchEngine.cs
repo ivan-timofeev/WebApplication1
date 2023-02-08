@@ -274,7 +274,7 @@ public class SearchEngine2 // : ISearchEngine
     private Expression<Func<T, bool>> HandleKeyword<T>(IQueryable<T> source, SearchEngineFilter.FilterToken filterToken)
     {
         var testHandler = new ContainsSearchEngineKeywordHandler2();
-        return testHandler.HandleKeyword(source, filterToken.AttributeName, filterToken.AttributeValue);
+        return testHandler.HandleKeyword(source, filterToken);
     }
 
     private static Expression<Func<T, bool>> AndAlso<T>(
