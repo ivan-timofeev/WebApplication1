@@ -34,9 +34,7 @@ public class SearchEngine2Tests
 
         // Act
         var source = data.AsQueryable();
-        var searchEngine = new SearchEngine2(
-            CreateMock<ISearchEngineFilterValidator>(out var validatorMock),
-            Mock.Of<ISearchEngineKeywordHandlerFinder>());
+        var searchEngine = CreateSearchEngine();
 
         var filtered = searchEngine
             .ExecuteEngine(source, filter)
@@ -47,7 +45,6 @@ public class SearchEngine2Tests
         Assert.Equal(2, filtered.Length);
         Assert.Contains(item1, filtered);
         Assert.Contains(item2, filtered);
-        validatorMock.Verify(x => x.ValidateFilter(filter, typeof(DummyEntity)));
     }
     
     [Fact]
@@ -68,9 +65,7 @@ public class SearchEngine2Tests
 
         // Act
         var source = data.AsQueryable();
-        var searchEngine = new SearchEngine2(
-            CreateMock<ISearchEngineFilterValidator>(out var validatorMock),
-            Mock.Of<ISearchEngineKeywordHandlerFinder>());
+        var searchEngine = CreateSearchEngine();
 
         var filtered = searchEngine
             .ExecuteEngine(source, filter)
@@ -79,22 +74,14 @@ public class SearchEngine2Tests
 
         // Assert
         Assert.Single(filtered, item1);
-        validatorMock.Verify(x => x.ValidateFilter(filter, typeof(ComplexDummyEntity)));
     }
 
-    private static T CreateMock<T>(out Mock<T> mock)
-        where T : class
-    {
-        mock = new Mock<T>();
-        return mock.Object;
-    }
-
-    private ISearchEngine GetSearchEngine()
+    private ISearchEngine2 CreateSearchEngine()
     {
         return new ServiceCollection()
-            .AddSearchEngine()
+            .AddSearchEngine2()
             .BuildServiceProvider()
-            .GetRequiredService<ISearchEngine>();
+            .GetRequiredService<ISearchEngine2>();
     }
 
     record DummyEntity(string Field1, string Field2);

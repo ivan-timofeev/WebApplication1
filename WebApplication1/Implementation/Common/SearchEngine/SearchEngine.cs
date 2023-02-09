@@ -198,19 +198,24 @@ public class SearchEngineFilterValidationException : Exception, IErrorVmProvider
     }
 }
 
-public class SearchEngine2 // : ISearchEngine
+public interface ISearchEngine2
+{
+    public IQueryable<T> ExecuteEngine<T>(IQueryable<T> source, SearchEngineFilter filter);
+}
+
+public class SearchEngine2 : ISearchEngine2
 {
     private readonly ISearchEngineFilterValidator _searchEngineFilterValidator;
-    private readonly ISearchEngineKeywordHandlerFinder _searchEngineKeywordHandlerFinder;
+    private readonly ISearchEngineKeywordHandlerFactoryFinder _searchEngineKeywordHandlerFactoryFinder;
 
     public SearchEngine2(
         ISearchEngineFilterValidator searchEngineFilterValidator,
-        ISearchEngineKeywordHandlerFinder searchEngineKeywordHandlerFinder)
+        ISearchEngineKeywordHandlerFactoryFinder searchEngineKeywordHandlerFactoryFinder)
     {
         _searchEngineFilterValidator = searchEngineFilterValidator
             ?? throw new ArgumentNullException(nameof(searchEngineFilterValidator));
-        _searchEngineKeywordHandlerFinder = searchEngineKeywordHandlerFinder
-            ?? throw new ArgumentNullException(nameof(searchEngineKeywordHandlerFinder));
+        _searchEngineKeywordHandlerFactoryFinder = searchEngineKeywordHandlerFactoryFinder
+            ?? throw new ArgumentNullException(nameof(searchEngineKeywordHandlerFactoryFinder));
     }
 
     /// <exception cref="SearchEngineFilterValidationException">An exception is thrown if an invalid filter was passed.</exception>
@@ -219,13 +224,12 @@ public class SearchEngine2 // : ISearchEngine
         SearchEngineFilter filter)
     {
         _searchEngineFilterValidator.ValidateFilter(filter, typeof(T));
-        var condition = SynthesizeCondition(source, filter.FilterTokenGroups.ToArray(), filter.Operation);
+        var condition = SynthesizeCondition<T>(filter.FilterTokenGroups.ToArray(), filter.Operation);
         var filteredSource = source.Where(condition);
         return filteredSource;
     }
 
     private Expression<Func<T, bool>> SynthesizeCondition<T>(
-        IQueryable<T> source,
         IFilterToken[] filterTokens,
         FilterTokenGroupOperationEnum groupOperation,
         Expression<Func<T, bool>>? condition = null)
@@ -238,18 +242,21 @@ public class SearchEngine2 // : ISearchEngine
             if (filterElement is SearchEngineFilter.FilterToken filterToken)
             {
                 condition = condition is null
-                    ? HandleKeyword(source, filterToken)
-                    : CombineConditions(condition, HandleKeyword(source, filterToken), groupOperation);
+                    ? HandleKeyword<T>(filterToken)
+                    : CombineConditions(condition, HandleKeyword<T>(filterToken), groupOperation);
             }
             else if (filterElement is SearchEngineFilter.FilterTokenGroup filterTokenGroup)
             {
                 condition = SynthesizeCondition(
-                    source,
                     filterTokenGroup.FilterTokens.ToArray(),
                     filterTokenGroup.Operation,
                     condition);
             }
         }
+
+        if (condition is null)
+            throw new Exception("Что то явно пошло не так. " + 
+                "Возможно в этой жизни ты свернул не на ту тропу. Подумай над этим.");
 
         return condition;
     }
@@ -271,10 +278,13 @@ public class SearchEngine2 // : ISearchEngine
         
     }
 
-    private Expression<Func<T, bool>> HandleKeyword<T>(IQueryable<T> source, SearchEngineFilter.FilterToken filterToken)
+    private Expression<Func<T, bool>> HandleKeyword<T>(SearchEngineFilter.FilterToken filterToken)
     {
-        var testHandler = new ContainsSearchEngineKeywordHandler2();
-        return testHandler.HandleKeyword(source, filterToken);
+        var searchEngineKeywordHandler = _searchEngineKeywordHandlerFactoryFinder
+            .GetSearchEngineKeywordHandlerFactory(filterToken.FilterType)
+            .CreateSearchEngineKeywordHandler();
+
+        return searchEngineKeywordHandler.HandleKeyword<T>(filterToken);
     }
 
     private static Expression<Func<T, bool>> AndAlso<T>(

@@ -45,12 +45,53 @@ public class ContainsSearchEngineKeywordHandler : ISearchEngineKeywordHandler
     }
 }
 
-public class ContainsSearchEngineKeywordHandler2
+public interface ISearchEngineKeywordHandler2
 {
-    public FilterTypeEnum Keyword => FilterTypeEnum.Contains;
+    Expression<Func<T, bool>> HandleKeyword<T>(SearchEngineFilter.FilterToken filterToken);
+}
 
+public interface ISearchEngineKeywordHandlerFactory
+{
+    FilterTypeEnum FilterType { get; }
+    ISearchEngineKeywordHandler2 CreateSearchEngineKeywordHandler();
+}
+
+public interface ISearchEngineKeywordHandlerFactoryFinder
+{
+    ISearchEngineKeywordHandlerFactory GetSearchEngineKeywordHandlerFactory(FilterTypeEnum filterType);
+}
+
+public class SearchEngineKeywordHandlerFactoryFinder
+    : ISearchEngineKeywordHandlerFactoryFinder
+{
+    private readonly ISearchEngineKeywordHandlerFactory[] _searchEngineKeywordHandlerFactories;
+
+    public SearchEngineKeywordHandlerFactoryFinder(
+        IEnumerable<ISearchEngineKeywordHandlerFactory> searchEngineKeywordHandlerFactories)
+    {
+        _searchEngineKeywordHandlerFactories = searchEngineKeywordHandlerFactories.ToArray();
+    }
+
+    public ISearchEngineKeywordHandlerFactory GetSearchEngineKeywordHandlerFactory(FilterTypeEnum filterType)
+    {
+        return _searchEngineKeywordHandlerFactories.Single(x => x.FilterType == filterType);
+    }
+}
+
+public class ContainsSearchEngineKeywordHandlerFactory
+    : ISearchEngineKeywordHandlerFactory
+{
+    public FilterTypeEnum FilterType => FilterTypeEnum.Contains;
+
+    public ISearchEngineKeywordHandler2 CreateSearchEngineKeywordHandler()
+    {
+        return new ContainsSearchEngineKeywordHandler2();
+    }
+}
+
+public class ContainsSearchEngineKeywordHandler2 : ISearchEngineKeywordHandler2
+{
     public Expression<Func<T, bool>> HandleKeyword<T>(
-        IQueryable<T> source,
         SearchEngineFilter.FilterToken filterToken)
     {
         var entityType = typeof(T);
@@ -71,7 +112,7 @@ public class ContainsSearchEngineKeywordHandler2
         return condition;
     }
 
-    private MemberExpression AccessToAttributeProperty(ParameterExpression parameterExpression, string pathToAttribute)
+    private static MemberExpression AccessToAttributeProperty(ParameterExpression parameterExpression, string pathToAttribute)
     {
         var split = pathToAttribute.Split('.');
 
