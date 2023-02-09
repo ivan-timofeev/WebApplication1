@@ -48,6 +48,62 @@ public class SearchEngine2Tests
     }
     
     [Fact]
+    public void ExecuteEngine_FilterWithEquals_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityInt(Field1: 1, Field2: 2);
+        var item2 = new DummyEntityInt(Field1: 3, Field2: 4);
+
+        var data = new List<DummyEntityInt> { item1, item2 };
+        // Field1 = 1 & Field2 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithEquals(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.Int, out _)
+            .WithEquals(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.Int, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+    
+    [Fact]
+    public void ExecuteEngine_FilterWithEqualsAndNullableFields_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityNullableInt(Field1: 1, Field2: 2);
+        var item2 = new DummyEntityNullableInt(Field1: 3, Field2: null);
+
+        var data = new List<DummyEntityNullableInt> { item1, item2 };
+        // Field1 = 1 & Field2 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithEquals(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.Int, out _)
+            .WithEquals(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.Int, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+    
+    [Fact]
     public void ExecuteEngine_CorrectSimpleFilterWithLevelTwoAttributeAccess_ShouldReturnFilteredCollection()
     {
         // Arrange
@@ -76,6 +132,34 @@ public class SearchEngine2Tests
         Assert.Single(filtered, item1);
     }
 
+    [Fact]
+    public void AddSearchEngine2_CreateCorrectSearchEngineInstance_ServicesShouldContainsAllRequiredParts()
+    {
+        // Arrange & Act
+        var services = new ServiceCollection();
+        services.AddSearchEngine2();
+        services.BuildServiceProvider();
+
+
+        // Assert
+        /* Common part */
+        AssertRequiredServiceAreRegistered(services, typeof(SearchEngine2));
+        AssertRequiredServiceAreRegistered(services, typeof(SearchEngineFilterValidator));
+        AssertRequiredServiceAreRegistered(services, typeof(SearchEngineKeywordHandlerFactoryFinder));
+        AssertRequiredServiceAreRegistered(services, typeof(SearchEngineFilterAttributeParser));
+        /* SearchEngineKeywordHandlers part */
+        AssertRequiredServiceAreRegistered(services, typeof(ContainsSearchEngineKeywordHandler2));
+        AssertRequiredServiceAreRegistered(services, typeof(EqualsSearchEngineKeywordHandler2));
+        /* SearchEngineKeywordHandlerFactories part */
+        AssertRequiredServiceAreRegistered(services, typeof(ContainsSearchEngineKeywordHandlerFactory));
+        AssertRequiredServiceAreRegistered(services, typeof(EqualsSearchEngineKeywordHandlerFactory));
+    }
+
+    private void AssertRequiredServiceAreRegistered(ServiceCollection services, Type requiredServiceType)
+    {
+        Assert.Contains(services, x => x.ImplementationType == requiredServiceType);
+    }
+
     private ISearchEngine2 CreateSearchEngine()
     {
         return new ServiceCollection()
@@ -85,6 +169,8 @@ public class SearchEngine2Tests
     }
 
     record DummyEntity(string Field1, string Field2);
+    record DummyEntityInt(int Field1, int Field2);
+    record DummyEntityNullableInt(int? Field1, int? Field2);
     record ComplexDummyEntity(string Field1, SubDummyEntity Field2);
     record SubDummyEntity(string Field3);
 }

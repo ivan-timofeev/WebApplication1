@@ -1,6 +1,9 @@
+using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using System.Reflection;
+using AutoMapper.Internal;
 using WebApplication1.Common.SearchEngine.Abstractions;
+using static WebApplication1.Common.SearchEngine.SearchEngineKeywordHandlerHelpers;
 
 namespace WebApplication1.Common.SearchEngine;
 
@@ -78,6 +81,45 @@ public class SearchEngineKeywordHandlerFactoryFinder
     }
 }
 
+
+
+public static class SearchEngineKeywordHandlerHelpers
+{
+    public static MemberExpression AccessToAttributeProperty(ParameterExpression parameterExpression, string pathToAttribute)
+    {
+        var split = pathToAttribute.Split('.');
+
+        if (split.Length < 2)
+        {
+            return Expression.Property(parameterExpression, pathToAttribute);
+        }
+        
+        Expression propertyExpression = parameterExpression;
+
+        foreach (var property in split)
+        {
+            propertyExpression = Expression.PropertyOrField(propertyExpression, property);
+        }
+
+        return (MemberExpression)propertyExpression;
+    }
+
+    public static Type GetAttributeType(Type entityType, string pathToAttribute)
+    {
+        var split = pathToAttribute.ToLower().Split(".");
+        var buffer = entityType;
+
+        foreach (var attributePathPart in split)
+        {
+            buffer = buffer.GetProperties()
+                .First(x => attributePathPart.ToLower().Contains(x.Name.ToLower()))
+                .PropertyType;
+        }
+
+        return buffer;
+    }
+}
+
 public class ContainsSearchEngineKeywordHandlerFactory
     : ISearchEngineKeywordHandlerFactory
 {
@@ -99,62 +141,118 @@ public class ContainsSearchEngineKeywordHandler2 : ISearchEngineKeywordHandler2
 
         var parameter = Expression.Parameter(entityType, "type");
         var property = AccessToAttributeProperty(parameter, filterToken.AttributeName);
-        var propertyNormalized = Expression.Call(property, GetToLowerMethod());
+        var propertyNormalized = Expression.Call(property, GetStringToLowerMethodInfo());
 
-        var attributeValue = Expression.Constant(filterToken.AttributeValue, attributeType);
-        var withContains = Expression.Call(propertyNormalized, GetContainsMethod(), attributeValue);
+        var filterValue = Expression.Constant(filterToken.AttributeValue, attributeType);
+        var stringContains = Expression.Call(propertyNormalized, GetStringContainsMethodInfo(), filterValue);
         var nullCheck = Expression.NotEqual(property, Expression.Constant(null, typeof(object)));
 
         var condition = Expression.Lambda<Func<T, bool>>(
-            Expression.AndAlso(nullCheck, withContains),
+            Expression.AndAlso(nullCheck, stringContains),
             parameter);
 
         return condition;
     }
 
-    private static MemberExpression AccessToAttributeProperty(ParameterExpression parameterExpression, string pathToAttribute)
-    {
-        var split = pathToAttribute.Split('.');
-
-        if (split.Length < 2)
-        {
-            return Expression.Property(parameterExpression, pathToAttribute);
-        }
-        
-        Expression propertyExpression = parameterExpression;
-
-        foreach (var property in split)
-        {
-            propertyExpression = Expression.PropertyOrField(propertyExpression, property);
-        }
-
-        return (MemberExpression)propertyExpression;
-    }
-
-    private static Type GetAttributeType(Type entityType, string pathToAttribute)
-    {
-        var split = pathToAttribute.ToLower().Split(".");
-        var buffer = entityType;
-
-        foreach (var attributePathPart in split)
-        {
-            buffer = buffer.GetProperties()
-                .First(x => attributePathPart.ToLower().Contains(x.Name.ToLower()))
-                .PropertyType;
-        }
-
-        return buffer;
-    }
-
-    private static MethodInfo GetContainsMethod()
+    private static MethodInfo GetStringContainsMethodInfo()
     {
         return typeof(string).GetMethod("Contains", new[] { typeof(string) })
                ?? throw new InvalidOperationException();
     }
 
-    private static MethodInfo GetToLowerMethod()
+    private static MethodInfo GetStringToLowerMethodInfo()
     {
         return typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)
                ?? throw new InvalidOperationException();
+    }
+}
+
+public class EqualsSearchEngineKeywordHandlerFactory
+    : ISearchEngineKeywordHandlerFactory
+{
+    public FilterTypeEnum FilterType => FilterTypeEnum.Equals;
+    
+    private readonly ISearchEngineFilterAttributeParser _searchEngineFilterAttributeParser;
+
+    public EqualsSearchEngineKeywordHandlerFactory(ISearchEngineFilterAttributeParser searchEngineFilterAttributeParser)
+    {
+        _searchEngineFilterAttributeParser = searchEngineFilterAttributeParser;
+    }
+
+    public ISearchEngineKeywordHandler2 CreateSearchEngineKeywordHandler()
+    {
+        return new EqualsSearchEngineKeywordHandler2(_searchEngineFilterAttributeParser);
+    }
+}
+
+public class EqualsSearchEngineKeywordHandler2 : ISearchEngineKeywordHandler2
+{
+    private readonly ISearchEngineFilterAttributeParser _searchEngineFilterAttributeParser;
+
+    public EqualsSearchEngineKeywordHandler2(ISearchEngineFilterAttributeParser searchEngineFilterAttributeParser)
+    {
+        _searchEngineFilterAttributeParser = searchEngineFilterAttributeParser;
+    }
+
+    public Expression<Func<T, bool>> HandleKeyword<T>(
+        SearchEngineFilter.FilterToken filterToken)
+    {
+        var entityType = typeof(T);
+        var attributeType = GetAttributeType(entityType, filterToken.AttributeName);
+
+        var parameter = Expression.Parameter(entityType, "type");
+        var property = AccessToAttributeProperty(parameter, filterToken.AttributeName);
+
+        var parsedFilterValue =
+            _searchEngineFilterAttributeParser.ParseAttribute(filterToken.AttributeValue, filterToken.AttributeType);
+        var filterValue = Expression.Constant(parsedFilterValue, attributeType);
+
+        if (!attributeType.IsNullableType())
+        {
+            return Expression.Lambda<Func<T, bool>>(body:
+                Expression.Equal(property, filterValue),
+                parameter);
+        }
+        
+        var nullCheck = Expression.NotEqual(property, Expression.Constant(null, typeof(object)));
+        var equals = Expression.Equal(property, filterValue);
+
+        return Expression.Lambda<Func<T, bool>>(body:
+            Expression.AndAlso(nullCheck, equals),
+            parameter);
+    }
+
+    private static MethodInfo GetStringContainsMethodInfo()
+    {
+        return typeof(string).GetMethod("Contains", new[] { typeof(string) })
+               ?? throw new InvalidOperationException();
+    }
+
+    private static MethodInfo GetStringToLowerMethodInfo()
+    {
+        return typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)
+               ?? throw new InvalidOperationException();
+    }
+}
+
+public interface ISearchEngineFilterAttributeParser
+{
+    // Вероятно лучше было завязаться на тип атрибута получаемый при помощи GetAttributeType(..)
+    object ParseAttribute(string attributeValue, AttributeTypeEnum destinationType);
+}
+
+public class SearchEngineFilterAttributeParser : ISearchEngineFilterAttributeParser
+{
+    public object ParseAttribute(string attributeValue, AttributeTypeEnum destinationType)
+    {
+        return destinationType switch
+        {
+            AttributeTypeEnum.Int => int.Parse(attributeValue),
+            AttributeTypeEnum.String => attributeValue,
+            AttributeTypeEnum.DateTime => DateTime.Parse(attributeValue),
+            AttributeTypeEnum.Guid => Guid.Parse(attributeValue),
+            AttributeTypeEnum.Float => float.Parse(attributeValue),
+            _ => throw new Exception("Invalid filter token attribute value.")
+        };
     }
 }

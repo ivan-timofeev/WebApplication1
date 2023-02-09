@@ -67,6 +67,23 @@ public class SearchEngineFilterBuilder
                 throw new Exception();
         }
     }
+    
+    public SearchEngineFilterBuilder WithEquals(
+        string attributeName,
+        string attributeValue,
+        AttributeTypeEnum attributeType,
+        out IFilterToken filterToken)
+    {
+        WithFilterToken(
+            variableName: attributeName,
+            variableValue: attributeValue,
+            attributeType: attributeType,
+            filterType: FilterTypeEnum.Equals,
+            out var createdToken);
+
+        filterToken = createdToken;
+        return this;
+    }
 
     public SearchEngineFilterBuilder WithContains(
         string variableName,

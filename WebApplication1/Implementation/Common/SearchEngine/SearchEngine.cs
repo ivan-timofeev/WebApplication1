@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using AutoMapper.Internal;
 using WebApplication1.Data.Repositories;
 using WebApplication1.Implementation.ViewModels;
 
@@ -132,7 +133,12 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
 
     private static string GetAttributeTypeName(Type attributeType)
     {
-        var typeName = attributeType.Name.ToLower()
+        var attributeTypeName = attributeType.IsNullableType()
+            ? attributeType.GetGenericArguments()[0].Name
+            : attributeType.Name;
+        
+        var typeName = attributeTypeName
+            .ToLower()
             .Replace("single", "float")
             .Replace("double", "float");
         return Regex.Replace(typeName, @"[\d-]", string.Empty);
