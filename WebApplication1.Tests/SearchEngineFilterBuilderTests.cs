@@ -35,14 +35,14 @@ public class SearchEngineFilterBuilderTests
                         {
                             AttributeName = expectedVariableOneName,
                             AttributeValue = expectedVariableOneFirstValue,
-                            AttributeType = AttributeTypeEnum.String,
+                            AttributeType = AttributeTypeEnum.Text,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
                             AttributeName = expectedVariableOneName,
                             AttributeValue = expectedVariableOneSecondValue,
-                            AttributeType = AttributeTypeEnum.String,
+                            AttributeType = AttributeTypeEnum.Text,
                             FilterType = FilterTypeEnum.Equals
                         }
                     },
@@ -56,14 +56,14 @@ public class SearchEngineFilterBuilderTests
                         {
                             AttributeName = expectedVariableTwoName,
                             AttributeValue = expectedVariableTwoFirstValue,
-                            AttributeType = AttributeTypeEnum.String,
+                            AttributeType = AttributeTypeEnum.Text,
                             FilterType = FilterTypeEnum.Equals
                         },
                         new SearchEngineFilter.FilterToken
                         {
                             AttributeName = expectedVariableTwoName,
                             AttributeValue = expectedVariableTwoSecondValue,
-                            AttributeType = AttributeTypeEnum.String,
+                            AttributeType = AttributeTypeEnum.Text,
                             FilterType = FilterTypeEnum.Equals
                         }
                     },
@@ -79,28 +79,28 @@ public class SearchEngineFilterBuilderTests
         builder.WithFilterToken(
             expectedVariableOneName,
             expectedVariableOneFirstValue,
-            AttributeTypeEnum.String,
+            AttributeTypeEnum.Text,
             FilterTypeEnum.Equals,
             out var variableOneFilterToken);
         builder.WithOrFilterToken(
             variableOneFilterToken,
             expectedVariableOneName,
             expectedVariableOneSecondValue,
-            AttributeTypeEnum.String,
+            AttributeTypeEnum.Text,
             FilterTypeEnum.Equals,
             out _);
 
         builder.WithFilterToken(
             expectedVariableTwoName,
             expectedVariableTwoFirstValue,
-            AttributeTypeEnum.String,
+            AttributeTypeEnum.Text,
             FilterTypeEnum.Equals,
             out var variableTwoFilterToken);
         builder.WithOrFilterToken(
             variableTwoFilterToken,
             expectedVariableTwoName,
             expectedVariableTwoSecondValue,
-            AttributeTypeEnum.String,
+            AttributeTypeEnum.Text,
             FilterTypeEnum.Equals,
             out _);
 

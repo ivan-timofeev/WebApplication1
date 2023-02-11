@@ -14,13 +14,13 @@ public enum FilterTokenGroupOperationEnum
 
 public enum AttributeTypeEnum
 {
-    String,
-    Int,
-    Float,
+    Text,
+    IntegerNumber,
+    FloatNumber,
     DateTime,
     Guid
 }
-    
+
 public enum FilterTypeEnum
 {
     Equals,

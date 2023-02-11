@@ -34,6 +34,7 @@ public static class SearchEngineDependencyInjectionExtensions
         services
             .BindSearchEngineKeywordHandlers()
             .AddSearchEngineKeywordHandlerFactories()
+            .AddAttributeParserStrategies()
             .AddTransient<ISearchEngineFilterAttributeParser, SearchEngineFilterAttributeParser>()
             .AddTransient<ISearchEngineKeywordHandlerFactoryFinder, SearchEngineKeywordHandlerFactoryFinder>()
             .AddTransient<ISearchEngineFilterValidator, SearchEngineFilterValidator>()
@@ -60,6 +61,21 @@ public static class SearchEngineDependencyInjectionExtensions
     private static IServiceCollection BindSearchEngineKeywordHandlers(this IServiceCollection services)
     {
         var type = typeof(ISearchEngineKeywordHandler2);
+        var types = type.Assembly
+            .GetTypes()
+            .Where(p => type.IsAssignableFrom(p) && p != type);
+
+        foreach (var inheritance in types)
+        {
+            services.AddTransient(type, inheritance);
+        }
+
+        return services;
+    }
+
+    private static IServiceCollection AddAttributeParserStrategies(this IServiceCollection services)
+    {
+        var type = typeof(IAttributeParserStrategy);
         var types = type.Assembly
             .GetTypes()
             .Where(p => type.IsAssignableFrom(p) && p != type);

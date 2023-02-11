@@ -5,16 +5,16 @@ public class SearchEngineFilterBuilder
     private SearchEngineFilter _instance = new SearchEngineFilter();
 
     public SearchEngineFilterBuilder WithFilterToken(
-        string variableName,
-        string variableValue,
+        string attributeName,
+        string attributeValue,
         AttributeTypeEnum attributeType,
         FilterTypeEnum filterType,
         out IFilterToken filterToken)
     {
         filterToken = new SearchEngineFilter.FilterToken
         {
-            AttributeName = variableName,
-            AttributeValue = variableValue,
+            AttributeName = attributeName,
+            AttributeValue = attributeValue,
             AttributeType = attributeType,
             FilterType = filterType
         };
@@ -25,16 +25,16 @@ public class SearchEngineFilterBuilder
 
     public SearchEngineFilterBuilder WithOrFilterToken(
         IFilterToken destiny,
-        string variableName,
-        string variableValue,
+        string attributeName,
+        string attributeValue,
         AttributeTypeEnum attributeType,
         FilterTypeEnum filterType,
         out IFilterToken filterToken)
     {
         var newFilterToken = new SearchEngineFilter.FilterToken
         {
-            AttributeName = variableName,
-            AttributeValue = variableValue,
+            AttributeName = attributeName,
+            AttributeValue = attributeValue,
             AttributeType = attributeType,
             FilterType = filterType
         };
@@ -75,8 +75,8 @@ public class SearchEngineFilterBuilder
         out IFilterToken filterToken)
     {
         WithFilterToken(
-            variableName: attributeName,
-            variableValue: attributeValue,
+            attributeName: attributeName,
+            attributeValue: attributeValue,
             attributeType: attributeType,
             filterType: FilterTypeEnum.Equals,
             out var createdToken);
@@ -86,14 +86,14 @@ public class SearchEngineFilterBuilder
     }
 
     public SearchEngineFilterBuilder WithContains(
-        string variableName,
-        string variableValue,
+        string attributeName,
+        string attributeValue,
         out IFilterToken filterToken)
     {
         WithFilterToken(
-            variableName: variableName,
-            variableValue: variableValue,
-            attributeType: AttributeTypeEnum.String,
+            attributeName: attributeName,
+            attributeValue: attributeValue,
+            attributeType: AttributeTypeEnum.Text,
             filterType: FilterTypeEnum.Contains,
             out var createdToken);
 
@@ -103,15 +103,15 @@ public class SearchEngineFilterBuilder
     
     public SearchEngineFilterBuilder WithOrContains(
         IFilterToken destiny,
-        string variableName,
-        string variableValue,
+        string attributeName,
+        string attributeValue,
         out IFilterToken filterToken)
     {
         WithOrFilterToken(
             destiny,
-            variableName: variableName,
-            variableValue: variableValue,
-            attributeType: AttributeTypeEnum.String,
+            attributeName: attributeName,
+            attributeValue: attributeValue,
+            attributeType: AttributeTypeEnum.Text,
             filterType: FilterTypeEnum.Contains,
             out var createdToken);
 

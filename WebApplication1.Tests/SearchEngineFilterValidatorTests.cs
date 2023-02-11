@@ -6,13 +6,13 @@ public class SearchEngineFilterValidatorTests
 {
     [Theory]
     // Int
-    [InlineData(FilterTypeEnum.MoreThan, AttributeTypeEnum.Int, "1", nameof(DummyEntity.Field1))]
-    [InlineData(FilterTypeEnum.LessThan, AttributeTypeEnum.Int, "1", nameof(DummyEntity.Field1))]
-    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Int, "1", nameof(DummyEntity.Field1))]
+    [InlineData(FilterTypeEnum.MoreThan, AttributeTypeEnum.IntegerNumber, "1", nameof(DummyEntity.Field1))]
+    [InlineData(FilterTypeEnum.LessThan, AttributeTypeEnum.IntegerNumber, "1", nameof(DummyEntity.Field1))]
+    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.IntegerNumber, "1", nameof(DummyEntity.Field1))]
     // Float
-    [InlineData(FilterTypeEnum.MoreThan, AttributeTypeEnum.Float, "1.0", nameof(DummyEntity.Field2))]
-    [InlineData(FilterTypeEnum.LessThan, AttributeTypeEnum.Float, "1.0", nameof(DummyEntity.Field2))]
-    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Float, "1.0", nameof(DummyEntity.Field2))]
+    [InlineData(FilterTypeEnum.MoreThan, AttributeTypeEnum.FloatNumber, "1.0", nameof(DummyEntity.Field2))]
+    [InlineData(FilterTypeEnum.LessThan, AttributeTypeEnum.FloatNumber, "1.0", nameof(DummyEntity.Field2))]
+    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.FloatNumber, "1.0", nameof(DummyEntity.Field2))]
     // DateTime
     [InlineData(FilterTypeEnum.MoreThan, AttributeTypeEnum.DateTime, "01/01/2001 08:00", nameof(DummyEntity.Field3))]
     [InlineData(FilterTypeEnum.LessThan, AttributeTypeEnum.DateTime, "01/01/2001 08:00", nameof(DummyEntity.Field3))]
@@ -20,11 +20,11 @@ public class SearchEngineFilterValidatorTests
     // Guid
     [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Guid, "7db0a735-7ef2-461b-aefa-2b56bc0ed109", nameof(DummyEntity.Field4))]
     // String
-    [InlineData(FilterTypeEnum.Contains, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
-    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
-    [InlineData(FilterTypeEnum.StartWith, AttributeTypeEnum.String, "text", nameof(DummyEntity.Field5))]
+    [InlineData(FilterTypeEnum.Contains, AttributeTypeEnum.Text, "text", nameof(DummyEntity.Field5))]
+    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Text, "text", nameof(DummyEntity.Field5))]
+    [InlineData(FilterTypeEnum.StartWith, AttributeTypeEnum.Text, "text", nameof(DummyEntity.Field5))]
     // With access to sub entity "Field6.Field1"
-    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.Int, "1", $"{nameof(DummyEntity.Field6)}.{nameof(DummySubEntity.Field1)}")]
+    [InlineData(FilterTypeEnum.Equals, AttributeTypeEnum.IntegerNumber, "1", $"{nameof(DummyEntity.Field6)}.{nameof(DummySubEntity.Field1)}")]
     public void ValidateFilter_CorrectFilter_MustValidationPass(
         FilterTypeEnum filterType,
         AttributeTypeEnum attributeType,

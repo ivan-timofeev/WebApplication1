@@ -71,7 +71,7 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
         
         if (filterType is FilterTypeEnum.LessThan or FilterTypeEnum.MoreThan)
         {
-            if (attributeType is not (AttributeTypeEnum.Float or AttributeTypeEnum.Int or AttributeTypeEnum.DateTime))
+            if (attributeType is not (AttributeTypeEnum.FloatNumber or AttributeTypeEnum.IntegerNumber or AttributeTypeEnum.DateTime))
             {
                 throw new SearchEngineFilterValidationException(message:
                     string.Format("Filter type \"{0}\" cannot be used with value type \"{1}\".",
@@ -82,7 +82,7 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
 
         if (filterType is FilterTypeEnum.Contains or FilterTypeEnum.StartWith)
         {
-            if (attributeType is not (AttributeTypeEnum.String))
+            if (attributeType is not (AttributeTypeEnum.Text))
             {
                 throw new SearchEngineFilterValidationException(message:
                     string.Format("Filter type \"{0}\" cannot be used with value type \"{1}\".",
@@ -140,7 +140,8 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
         var typeName = attributeTypeName
             .ToLower()
             .Replace("single", "float")
-            .Replace("double", "float");
+            .Replace("double", "float")
+            .Replace("string", "text");
         return Regex.Replace(typeName, @"[\d-]", string.Empty);
     }
 

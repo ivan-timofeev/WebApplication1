@@ -1,4 +1,5 @@
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using AutoMapper.Internal;
@@ -204,7 +205,7 @@ public class EqualsSearchEngineKeywordHandler2 : ISearchEngineKeywordHandler2
         var property = AccessToAttributeProperty(parameter, filterToken.AttributeName);
 
         var parsedFilterValue =
-            _searchEngineFilterAttributeParser.ParseAttribute(filterToken.AttributeValue, filterToken.AttributeType);
+            _searchEngineFilterAttributeParser.ParseAttribute(filterToken.AttributeValue, attributeType);
         var filterValue = Expression.Constant(parsedFilterValue, attributeType);
 
         if (!attributeType.IsNullableType())
@@ -238,21 +239,103 @@ public class EqualsSearchEngineKeywordHandler2 : ISearchEngineKeywordHandler2
 public interface ISearchEngineFilterAttributeParser
 {
     // Вероятно лучше было завязаться на тип атрибута получаемый при помощи GetAttributeType(..)
-    object ParseAttribute(string attributeValue, AttributeTypeEnum destinationType);
+    object ParseAttribute(string attributeValue, Type attributeType);
 }
 
 public class SearchEngineFilterAttributeParser : ISearchEngineFilterAttributeParser
 {
-    public object ParseAttribute(string attributeValue, AttributeTypeEnum destinationType)
+    private readonly IEnumerable<IAttributeParserStrategy> _attributeParseStrategies;
+
+    public SearchEngineFilterAttributeParser(IEnumerable<IAttributeParserStrategy> attributeParseStrategies)
     {
-        return destinationType switch
-        {
-            AttributeTypeEnum.Int => int.Parse(attributeValue),
-            AttributeTypeEnum.String => attributeValue,
-            AttributeTypeEnum.DateTime => DateTime.Parse(attributeValue),
-            AttributeTypeEnum.Guid => Guid.Parse(attributeValue),
-            AttributeTypeEnum.Float => float.Parse(attributeValue),
-            _ => throw new Exception("Invalid filter token attribute value.")
-        };
+        _attributeParseStrategies = attributeParseStrategies;
+    }
+    
+    public object ParseAttribute(string attributeValue, Type attributeType)
+    {
+        var correctedAttributeType = attributeType.IsNullableType()
+            ? attributeType.GetGenericArguments()[0]
+            : attributeType;
+        
+        var parserStrategy = _attributeParseStrategies.Single(x => x.AssignedType == correctedAttributeType);
+        return parserStrategy.ParseAttribute(attributeValue);
+    }
+}
+
+public interface IAttributeParserStrategy
+{
+    Type AssignedType { get; }
+    object ParseAttribute(string attributeValue);
+}
+
+public class AttributeParserStringStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(int);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return !string.IsNullOrWhiteSpace(attributeValue)
+            ? attributeValue
+            : string.Empty;
+    }
+}
+
+public class AttributeParserIntStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(int);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return int.Parse(attributeValue);
+    }
+}
+
+public class AttributeParserLongStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(long);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return long.Parse(attributeValue);
+    }
+}
+
+public class AttributeParserFloatStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(float);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return float.Parse(attributeValue);
+    }
+}
+
+public class AttributeParserDoubleStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(float);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return float.Parse(attributeValue);
+    }
+}
+
+public class AttributeParserDateTimeStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(DateTime);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return DateTime.Parse(attributeValue, CultureInfo.InvariantCulture);
+    }
+}
+
+public class AttributeParserGuidStrategy : IAttributeParserStrategy
+{
+    public Type AssignedType => typeof(Guid);
+
+    public object ParseAttribute(string attributeValue)
+    {
+        return Guid.Parse(attributeValue);
     }
 }
