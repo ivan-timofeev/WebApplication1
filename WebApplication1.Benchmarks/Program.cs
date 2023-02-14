@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿#nullable disable
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Microsoft.Extensions.DependencyInjection;
 using WebApplication1.Abstraction.Services.SearchEngine;
@@ -11,12 +12,21 @@ BenchmarkRunner.Run<SearchEngineBenchmark>();
 
 public class SearchEngineBenchmark
 {
-    private static IQueryable<DummyEntity> source_100K = CreateSource(100_000);
-    private static IQueryable<DummyEntity> source_1M = CreateSource(1_000_000);
+    [Params(10_000, 100_000, 1_000_000)]
+    public int SourceCapacity;
     
-    private static ISearchEngine _searchEngine = CreateSearchEngine();
-    private static SearchEngineFilter _filter = CreateFilter();
+    [IterationSetup]
+    public void Setup()
+    {
+        _source = CreateSource(SourceCapacity);
+        _searchEngine = CreateSearchEngine();
+        _filter = CreateFilter();
+    }
     
+    private IQueryable<DummyEntity> _source;
+    private ISearchEngine _searchEngine;
+    private SearchEngineFilter _filter;
+
     private static ISearchEngine CreateSearchEngine()
     {
         return new ServiceCollection()
@@ -45,51 +55,18 @@ public class SearchEngineBenchmark
         return list.AsQueryable();
     }
 
-    [Benchmark(Description = "SearchEngine_100kSource")]
-    public void SearchEngine_100kSource()
+    [Benchmark(Description = "SearchEngine_WithMaterialisation")]
+    public void SearchEngine_WithMaterialisation()
     {
-        _ = _searchEngine.ExecuteEngine(source_100K, _filter);
-    }
-    [Benchmark(Description = "EfCore_100kSource")]
-    public void EfCore_100kSource()
-    {
-        _ = source_100K.Where(x => x.Field1 == "1" && x.Field2.StartsWith("2"));
-    }
-
-    [Benchmark(Description = "SearchEngine_1mSource")]
-    public void SearchEngine_1mSource()
-    {
-        _ = _searchEngine.ExecuteEngine(source_1M, _filter);
-    }
-    [Benchmark(Description = "EfCore_1mSource")]
-    public void EfCore_1mSource()
-    {
-        _ = source_1M.Where(x => x.Field1 == "1" && x.Field2.StartsWith("2"));
-    }
-
-    [Benchmark(Description = "SearchEngine_100kSourceWithMaterialisation")]
-    public void SearchEngine_100kSourceWithMaterialisation()
-    {
-        _ = _searchEngine.ExecuteEngine(source_100K, _filter)
+        _ = _searchEngine.ExecuteEngine(_source, _filter)
             .ToArray();
     }
-    [Benchmark(Description = "EfCore_100kSourceWithMaterialisation")]
-    public void EfCore_100kSourceWithMaterialisation()
+    [Benchmark(Description = "EfCore_WithMaterialisation")]
+    public void EfCore_WithMaterialisation()
     {
-        _ = source_100K.Where(x => x.Field1 == "1" && x.Field2.StartsWith("2"))
-            .ToArray();
-    }
-    
-    [Benchmark(Description = "SearchEngine_1mSourceWithMaterialisation")]
-    public void SearchEngine_1mSourceWithMaterialisation()
-    {
-        _ = _searchEngine.ExecuteEngine(source_1M, _filter)
-            .ToArray();
-    }
-    [Benchmark(Description = "EfCore_1mSourceWithMaterialisation")]
-    public void EfCore_1mSourceWithMaterialisation()
-    {
-        _ = source_1M.Where(x => x.Field1 == "1" && x.Field2.StartsWith("2"))
+        _ = _source.Where(x =>
+                x.Field1 == "1"
+                && x.Field2.StartsWith("2"))
             .ToArray();
     }
 }

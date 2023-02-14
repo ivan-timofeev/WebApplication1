@@ -1,0 +1,23 @@
+// * Summary *
+
+BenchmarkDotNet=v0.13.4, OS=Windows 11 (10.0.22621.1105)
+11th Gen Intel Core i5-11400 2.60GHz, 1 CPU, 12 logical and 6 physical cores
+.NET SDK=7.0.102
+  [Host]     : .NET 6.0.11 (6.0.1122.52304), X64 RyuJIT AVX2
+  Job-OTLVTR : .NET 6.0.11 (6.0.1122.52304), X64 RyuJIT AVX2
+
+InvocationCount=1  UnrollFactor=1  
+
+|                           Method | SourceCapacity |       Mean |     Error |      StdDev |     Median |
+|--------------------------------- |--------------- |-----------:|----------:|------------:|-----------:|
+| SearchEngine_WithMaterialisation |          10000 |   902.7 us |  26.53 us |    72.61 us |   892.9 us |
+|       EfCore_WithMaterialisation |          10000 |   772.1 us |  41.97 us |   117.68 us |   736.4 us |
+| SearchEngine_WithMaterialisation |         100000 | 1,720.3 us |  75.60 us |   203.10 us | 1,682.1 us |
+|       EfCore_WithMaterialisation |         100000 | 1,668.6 us |  83.54 us |   228.70 us | 1,615.5 us |
+| SearchEngine_WithMaterialisation |        1000000 | 9,831.7 us | 453.84 us | 1,316.68 us | 9,552.6 us |
+|       EfCore_WithMaterialisation |        1000000 | 9,264.8 us | 401.37 us | 1,177.16 us | 9,076.9 us |
+
+Difference:
+15%    10K
+3%    100K
+7%   1000K
