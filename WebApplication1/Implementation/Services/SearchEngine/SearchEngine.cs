@@ -25,11 +25,11 @@ public class SearchEngine : ISearchEngine
         IQueryable<T> source,
         SearchEngineFilter? filter)
     {
-        if (filter is null)
+        if (filter?.FilterTokenGroups is null || filter.FilterTokenGroups.Count == 0)
             return source;
 
         _searchEngineFilterValidator.ValidateFilter(filter, typeof(T));
-        var condition = SynthesizeCondition<T>(filter.FilterTokenGroups.ToArray(), filter.Operation);
+        var condition = SynthesizeCondition<T>(filter.FilterTokenGroups.ToArray(), FilterTokenGroupOperationEnum.And);
         var filteredSource = source.Where(condition);
         return filteredSource;
     }

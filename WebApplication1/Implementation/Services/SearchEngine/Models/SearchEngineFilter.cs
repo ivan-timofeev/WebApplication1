@@ -5,7 +5,6 @@ namespace WebApplication1.Services.SearchEngine.Models;
 public class SearchEngineFilter
 {
     public List<IFilterToken> FilterTokenGroups { get; init; } = new List<IFilterToken>();
-    public FilterTokenGroupOperationEnum Operation => FilterTokenGroupOperationEnum.And;
 
     public class FilterTokenGroup : IFilterToken
     {
