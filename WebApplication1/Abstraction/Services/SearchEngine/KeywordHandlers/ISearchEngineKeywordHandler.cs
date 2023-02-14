@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using WebApplication1.Services.SearchEngine.Models;
 
-namespace WebApplication1.Abstraction.Services.SearchEngine;
+namespace WebApplication1.Abstraction.Services.SearchEngine.KeywordHandlers;
 
 public interface ISearchEngineKeywordHandler
 {

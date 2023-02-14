@@ -1,4 +1,4 @@
-namespace WebApplication1.Implementation.ViewModels;
+namespace WebApplication1.ViewModels;
 
 public class ErrorVm
 {

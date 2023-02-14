@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using WebApplication1.Abstraction.Services.SearchEngine;
-using WebApplication1.Common.SearchEngine;
+using WebApplication1.Common.Exceptions;
 using WebApplication1.Services.SearchEngine.Models;
 
 namespace WebApplication1.Services.SearchEngine;

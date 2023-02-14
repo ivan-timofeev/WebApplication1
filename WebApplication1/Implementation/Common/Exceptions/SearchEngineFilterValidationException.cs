@@ -1,7 +1,7 @@
-using WebApplication1.Data.Repositories;
-using WebApplication1.Implementation.ViewModels;
+using WebApplication1.Abstraction.Common.Exceptions;
+using WebApplication1.ViewModels;
 
-namespace WebApplication1.Common.SearchEngine;
+namespace WebApplication1.Common.Exceptions;
 
 public class SearchEngineFilterValidationException : Exception, IErrorVmProvider
 {

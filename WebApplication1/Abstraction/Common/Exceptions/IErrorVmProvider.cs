@@ -1,6 +1,6 @@
-using WebApplication1.Implementation.ViewModels;
+using WebApplication1.ViewModels;
 
-namespace WebApplication1.Data.Repositories;
+namespace WebApplication1.Abstraction.Common.Exceptions;
 
 public interface IErrorVmProvider
 {

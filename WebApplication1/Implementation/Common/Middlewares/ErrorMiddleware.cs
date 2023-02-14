@@ -1,5 +1,5 @@
 using System.Text.Json;
-using WebApplication1.Data.Repositories;
+using WebApplication1.Abstraction.Common.Exceptions;
 
 namespace WebApplication1.Common.Middlewares;
 

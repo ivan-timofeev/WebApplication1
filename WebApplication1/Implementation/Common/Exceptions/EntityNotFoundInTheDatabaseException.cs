@@ -1,6 +1,7 @@
-using WebApplication1.Implementation.ViewModels;
+using WebApplication1.Abstraction.Common.Exceptions;
+using WebApplication1.ViewModels;
 
-namespace WebApplication1.Data.Repositories;
+namespace WebApplication1.Common.Exceptions;
 
 public sealed class EntityNotFoundInTheDatabaseException : Exception, IErrorVmProvider
 {
