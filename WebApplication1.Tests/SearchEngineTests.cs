@@ -148,9 +148,15 @@ public class SearchEngineTests
             /* SearchEngineKeywordHandlers part */
             .AssertServiceRegistered(typeof(ContainsSearchEngineKeywordHandler))
             .AssertServiceRegistered(typeof(EqualsSearchEngineKeywordHandler))
+            .AssertServiceRegistered(typeof(StartsWithSearchEngineKeywordHandler))
+            .AssertServiceRegistered(typeof(GreaterThanSearchEngineKeywordHandler))
+            .AssertServiceRegistered(typeof(LessThanSearchEngineKeywordHandler))
             /* SearchEngineKeywordHandlerFactories part */
             .AssertServiceRegistered(typeof(ContainsSearchEngineKeywordHandlerFactory))
             .AssertServiceRegistered(typeof(EqualsSearchEngineKeywordHandlerFactory))
+            .AssertServiceRegistered(typeof(StartsWithSearchEngineKeywordHandlerFactory))
+            .AssertServiceRegistered(typeof(GreaterThanSearchEngineKeywordHandlerFactory))
+            .AssertServiceRegistered(typeof(LessThanSearchEngineKeywordHandlerFactory))
             /* AttributeParserStrategies part */
             .AssertServiceRegistered(typeof(AttributeParseStringStrategy))
             .AssertServiceRegistered(typeof(AttributeParseGuidStrategy))

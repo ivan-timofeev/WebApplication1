@@ -4,7 +4,7 @@ public enum FilterTypeEnum
 {
     Equals,
     Contains,
-    MoreThan,
+    GreaterThan,
     LessThan,
-    StartWith
+    StartsWith
 }

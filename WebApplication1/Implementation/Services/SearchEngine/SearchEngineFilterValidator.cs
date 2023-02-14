@@ -36,7 +36,7 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
         var filterType = filterToken.FilterType;
         var attributeType = filterToken.AttributeType;
         
-        if (filterType is FilterTypeEnum.LessThan or FilterTypeEnum.MoreThan)
+        if (filterType is FilterTypeEnum.LessThan or FilterTypeEnum.GreaterThan)
         {
             if (attributeType is not (AttributeTypeEnum.FloatNumber or AttributeTypeEnum.IntegerNumber or AttributeTypeEnum.DateTime))
             {
@@ -47,7 +47,7 @@ public class SearchEngineFilterValidator : ISearchEngineFilterValidator
             }
         }
 
-        if (filterType is FilterTypeEnum.Contains or FilterTypeEnum.StartWith)
+        if (filterType is FilterTypeEnum.Contains or FilterTypeEnum.StartsWith)
         {
             if (attributeType is not (AttributeTypeEnum.Text))
             {
