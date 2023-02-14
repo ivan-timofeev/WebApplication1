@@ -21,3 +21,5 @@ services:
       POSTGRES_PASSWORD: ${SqlDatabasePassword}
       TZ: Europe/Moscow
       PGTZ: Europe/Moscow
+    ports:
+      - "5432:5432"
