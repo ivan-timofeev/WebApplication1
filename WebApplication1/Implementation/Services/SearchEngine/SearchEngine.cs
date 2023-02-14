@@ -23,8 +23,11 @@ public class SearchEngine : ISearchEngine
     /// <exception cref="SearchEngineFilterValidationException">An exception is thrown if an invalid filter was passed.</exception>
     public IQueryable<T> ExecuteEngine<T>(
         IQueryable<T> source,
-        SearchEngineFilter filter)
+        SearchEngineFilter? filter)
     {
+        if (filter is null)
+            return source;
+
         _searchEngineFilterValidator.ValidateFilter(filter, typeof(T));
         var condition = SynthesizeCondition<T>(filter.FilterTokenGroups.ToArray(), filter.Operation);
         var filteredSource = source.Where(condition);

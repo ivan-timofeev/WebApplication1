@@ -43,6 +43,20 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
 
     private void ExecuteLogic()
     {
+        try
+        {
+            ExecuteLogicInternal();
+        }
+        catch (Exception x)
+        {
+            _logger.LogCritical("CheckExpiredOrdersBackgroundTask fails.\n" +
+                                "Next start in {d}\n" +
+                                "Exception: {x}", DateTime.UtcNow.AddMinutes(1), x);
+        }
+    }
+
+    private void ExecuteLogicInternal()
+    {
         using var scope = _serviceProvider.CreateScope();
         var ordersManagementService = scope.ServiceProvider.GetRequiredService<IOrdersManagementService>();
         var dbContext = scope.ServiceProvider.GetRequiredService<WebApplicationDbContext>();
