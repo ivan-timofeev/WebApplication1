@@ -19,6 +19,6 @@ public class LessThanSearchEngineKeywordHandlerFactory
 
     public ISearchEngineKeywordHandler CreateSearchEngineKeywordHandler()
     {
-        return new GreaterThanSearchEngineKeywordHandler(_searchEngineFilterAttributeParser);
+        return new LessThanSearchEngineKeywordHandler(_searchEngineFilterAttributeParser);
     }
 }

@@ -127,6 +127,93 @@ public class SearchEngineTests
         // Assert
         Assert.Single(filtered, item1);
     }
+    
+    [Fact]
+    public void ExecuteEngine_FilterWithGreaterThan_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityInt(Field1: 10, Field2: 20);
+        var item2 = new DummyEntityInt(Field1: 1, Field2: 2);
+        var item3 = new DummyEntityInt(Field1: 3, Field2: 4);
+
+        var data = new List<DummyEntityInt> { item1, item2, item3 };
+        // Field1 > 1 & Field2 > 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithGreaterThan(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.IntegerNumber, out _)
+            .WithGreaterThan(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.IntegerNumber, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+    
+    [Fact]
+    public void ExecuteEngine_FilterWithLessThan_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityInt(Field1: 0, Field2: 1);
+        var item2 = new DummyEntityInt(Field1: 1, Field2: 2);
+        var item3 = new DummyEntityInt(Field1: 3, Field2: 4);
+
+        var data = new List<DummyEntityInt> { item1, item2, item3 };
+        // Field1 > 1 & Field2 > 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithLessThan(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.IntegerNumber, out _)
+            .WithLessThan(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.IntegerNumber, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+    
+    [Fact]
+    public void ExecuteEngine_FilterWithStartsWith_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntity(Field1: "123", Field2: "234");
+        var item2 = new DummyEntity(Field1: "345", Field2: "456");
+        var item3 = new DummyEntity(Field1: "567", Field2: "678");
+
+        var data = new List<DummyEntity> { item1, item2, item3 };
+        // Field1 > 1 & Field2 > 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithStartsWith(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.Text, out _)
+            .WithStartsWith(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.Text, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
 
     [Fact]
     public void AddSearchEngine2_AddSearchEngineInDependenciesCorrectly_ServicesShouldContainsAllRequiredParts()

@@ -87,6 +87,57 @@ public class SearchEngineFilterBuilder
         filterToken = createdToken;
         return this;
     }
+    
+    public SearchEngineFilterBuilder WithGreaterThan(
+        string attributeName,
+        string attributeValue,
+        AttributeTypeEnum attributeType,
+        out IFilterToken filterToken)
+    {
+        WithFilterToken(
+            attributeName: attributeName,
+            attributeValue: attributeValue,
+            attributeType: attributeType,
+            filterType: FilterTypeEnum.GreaterThan,
+            out var createdToken);
+
+        filterToken = createdToken;
+        return this;
+    }
+    
+    public SearchEngineFilterBuilder WithLessThan(
+        string attributeName,
+        string attributeValue,
+        AttributeTypeEnum attributeType,
+        out IFilterToken filterToken)
+    {
+        WithFilterToken(
+            attributeName: attributeName,
+            attributeValue: attributeValue,
+            attributeType: attributeType,
+            filterType: FilterTypeEnum.LessThan,
+            out var createdToken);
+
+        filterToken = createdToken;
+        return this;
+    }
+    
+    public SearchEngineFilterBuilder WithStartsWith(
+        string attributeName,
+        string attributeValue,
+        AttributeTypeEnum attributeType,
+        out IFilterToken filterToken)
+    {
+        WithFilterToken(
+            attributeName: attributeName,
+            attributeValue: attributeValue,
+            attributeType: attributeType,
+            filterType: FilterTypeEnum.StartsWith,
+            out var createdToken);
+
+        filterToken = createdToken;
+        return this;
+    }
 
     public SearchEngineFilterBuilder WithContains(
         string attributeName,

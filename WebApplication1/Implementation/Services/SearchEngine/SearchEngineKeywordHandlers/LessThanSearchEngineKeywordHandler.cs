@@ -30,15 +30,15 @@ public class LessThanSearchEngineKeywordHandler : ISearchEngineKeywordHandler
         if (!attributeType.IsNullableType())
         {
             return Expression.Lambda<Func<T, bool>>(body:
-                Expression.Equal(property, filterValue),
+                Expression.LessThan(property, filterValue),
                 parameter);
         }
 
         var nullCheck = Expression.NotEqual(property, Expression.Constant(null, typeof(object)));
-        var equals = Expression.LessThan(property, filterValue);
+        var lessThan = Expression.LessThan(property, filterValue);
 
         return Expression.Lambda<Func<T, bool>>(body:
-            Expression.AndAlso(nullCheck, equals),
+            Expression.AndAlso(nullCheck, lessThan),
             parameter);
     }
 }

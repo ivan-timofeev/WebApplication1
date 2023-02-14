@@ -30,15 +30,15 @@ public class GreaterThanSearchEngineKeywordHandler : ISearchEngineKeywordHandler
         if (!attributeType.IsNullableType())
         {
             return Expression.Lambda<Func<T, bool>>(body:
-                Expression.Equal(property, filterValue),
+                Expression.GreaterThan(property, filterValue),
                 parameter);
         }
 
         var nullCheck = Expression.NotEqual(property, Expression.Constant(null, typeof(object)));
-        var equals = Expression.GreaterThan(property, filterValue);
+        var greaterThan = Expression.GreaterThan(property, filterValue);
 
         return Expression.Lambda<Func<T, bool>>(body:
-            Expression.AndAlso(nullCheck, equals),
+            Expression.AndAlso(nullCheck, greaterThan),
             parameter);
     }
 }
