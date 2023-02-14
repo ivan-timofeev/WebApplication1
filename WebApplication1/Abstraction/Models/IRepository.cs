@@ -1,4 +1,4 @@
-using WebApplication1.Common.SearchEngine.Models;
+using WebApplication1.Services.SearchEngine.Models;
 
 namespace WebApplication1.Abstraction.Models;
 

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
-using WebApplication1.Common.SearchEngine.Models;
+using WebApplication1.Abstraction.Services.SearchEngine;
 using WebApplication1.Models;
+using WebApplication1.Services.SearchEngine.Models;
 
 namespace WebApplication1.Data.Repositories;
 

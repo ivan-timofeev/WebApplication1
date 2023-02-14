@@ -1,9 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Abstraction.Data.Repositories;
-using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
+using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
 
 namespace WebApplication1.Controllers;

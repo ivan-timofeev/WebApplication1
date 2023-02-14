@@ -1,8 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using WebApplication1.Abstraction.Common.SearchEngine;
-using WebApplication1.Common.SearchEngine;
-using WebApplication1.Common.SearchEngine.DependencyInjection;
-using WebApplication1.Common.SearchEngine.KeywordHandlers;
+using WebApplication1.Abstraction.Services.SearchEngine;
+using WebApplication1.Services.SearchEngine;
+using WebApplication1.Services.SearchEngine.AttributeParseStrategies;
+using WebApplication1.Services.SearchEngine.DI;
+using WebApplication1.Services.SearchEngine.KeywordHandlers;
+using WebApplication1.Services.SearchEngine.Models;
 
 namespace WebApplication1.Tests;
 

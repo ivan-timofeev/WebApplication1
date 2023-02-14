@@ -1,6 +1,6 @@
-using WebApplication1.Abstraction.Common.SearchEngine;
-using WebApplication1.Common.SearchEngine;
-using WebApplication1.Common.SearchEngine.Models;
+using WebApplication1.Abstraction.Services.SearchEngine;
+using WebApplication1.Services.SearchEngine;
+using WebApplication1.Services.SearchEngine.Models;
 
 namespace WebApplication1.Tests;
 
