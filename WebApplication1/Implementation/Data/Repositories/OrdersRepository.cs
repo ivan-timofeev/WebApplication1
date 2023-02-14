@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
-using WebApplication1.Common.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
@@ -126,17 +127,17 @@ public class OrdersRepository : IOrdersRepository
         return PagedModel<Order>.Paginate(orders, page, pageSize);
     }
 
-    public IEnumerable<Order> Search(string? searchQuery)
+    public IEnumerable<Order> Search(SearchEngineFilter? filter)
     {
         return _searchEngine
-            .ExecuteEngine(GetOrdersSource(), searchQuery ?? "")
+            .ExecuteEngine(GetOrdersSource(), filter)
             .ToArray();
     }
 
-    public PagedModel<Order> SearchWithPagination(string? searchQuery, int page, int pageSize)
+    public PagedModel<Order> SearchWithPagination(SearchEngineFilter? filter, int page, int pageSize)
     {
         var orders = _searchEngine
-            .ExecuteEngine(GetOrdersSource(), searchQuery ?? string.Empty);
+            .ExecuteEngine(GetOrdersSource(), filter);
 
         return PagedModel<Order>.Paginate(orders, page, pageSize);
     }

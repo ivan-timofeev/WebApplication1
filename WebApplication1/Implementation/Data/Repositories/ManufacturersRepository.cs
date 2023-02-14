@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
-using WebApplication1.Common.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
@@ -106,18 +107,18 @@ public class ManufacturersRepository : IManufacturersRepository
         return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);
     }
 
-    public IEnumerable<Manufacturer> Search(string? searchQuery)
+    public IEnumerable<Manufacturer> Search(SearchEngineFilter? filter)
     {
         return _searchEngine
-            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? "")
+            .ExecuteEngine(GetManufacturersSource(), filter)
             .AsNoTracking()
             .ToArray();
     }
 
-    public PagedModel<Manufacturer> SearchWithPagination(string? searchQuery, int page, int pageSize)
+    public PagedModel<Manufacturer> SearchWithPagination(SearchEngineFilter? filter, int page, int pageSize)
     {
         var manufacturers = _searchEngine
-            .ExecuteEngine(GetManufacturersSource(), searchQuery ?? string.Empty)
+            .ExecuteEngine(GetManufacturersSource(), filter)
             .AsNoTracking();
 
         return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);

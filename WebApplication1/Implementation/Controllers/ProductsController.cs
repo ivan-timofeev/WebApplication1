@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Abstraction.Data.Repositories;
+using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
@@ -67,10 +68,10 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get(string? searchQuery, int page = 1, int pageSize = 25)
+    public IActionResult Get(SearchEngineFilter? filter, int page = 1, int pageSize = 25)
     {
         var result = _productsRepository
-            .SearchWithPagination(searchQuery, page, pageSize)
+            .SearchWithPagination(filter, page, pageSize)
             .MapTo<ProductVm>();
 
         return Ok(result);

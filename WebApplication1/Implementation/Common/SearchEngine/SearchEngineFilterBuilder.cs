@@ -1,3 +1,6 @@
+using WebApplication1.Abstraction.Common.SearchEngine;
+using WebApplication1.Common.SearchEngine.Models;
+
 namespace WebApplication1.Common.SearchEngine;
 
 public class SearchEngineFilterBuilder
@@ -49,7 +52,7 @@ public class SearchEngineFilterBuilder
             
                 var group = new SearchEngineFilter.FilterTokenGroup()
                 {
-                    FilterTokens = new List<IFilterToken> { newFilterToken, destiny },
+                    FilterTokens = new List<IFilterToken> { destiny, newFilterToken },
                     Operation = FilterTokenGroupOperationEnum.Or
                 };
             

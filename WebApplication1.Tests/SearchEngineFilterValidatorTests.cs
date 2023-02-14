@@ -1,4 +1,6 @@
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Common.SearchEngine;
+using WebApplication1.Common.SearchEngine.Models;
 
 namespace WebApplication1.Tests;
 

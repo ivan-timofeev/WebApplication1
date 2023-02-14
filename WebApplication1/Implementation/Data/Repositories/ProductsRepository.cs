@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
-using WebApplication1.Common.SearchEngine.Abstractions;
+using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Repositories;
@@ -108,18 +109,18 @@ public class ProductsRepository : IProductsRepository
         return PagedModel<Product>.Paginate(products, page, pageSize);
     }
 
-    public IEnumerable<Product> Search(string? searchQuery)
+    public IEnumerable<Product> Search(SearchEngineFilter? filter)
     {
         return _searchEngine
-            .ExecuteEngine(GetProductsSource(), searchQuery ?? "")
+            .ExecuteEngine(GetProductsSource(), filter)
             .AsNoTracking()
             .ToArray();
     }
 
-    public PagedModel<Product> SearchWithPagination(string? searchQuery, int page, int pageSize)
+    public PagedModel<Product> SearchWithPagination(SearchEngineFilter? filter, int page, int pageSize)
     {
         var products = _searchEngine
-            .ExecuteEngine(GetProductsSource(), searchQuery ?? string.Empty)
+            .ExecuteEngine(GetProductsSource(), filter)
             .AsNoTracking();
 
         return PagedModel<Product>.Paginate(products, page, pageSize);

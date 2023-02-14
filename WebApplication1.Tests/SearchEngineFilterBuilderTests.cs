@@ -1,12 +1,7 @@
-using AutoBogus;
-using AutoMapper;
 using DeepEqual.Syntax;
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Common.SearchEngine;
-using WebApplication1.Implementation.Helpers;
-using WebApplication1.Implementation.ViewModels.Order;
-using WebApplication1.Models;
-using WebApplication1.ViewModels;
-using Xunit.Sdk;
+using WebApplication1.Common.SearchEngine.Models;
 
 namespace WebApplication1.Tests;
 
@@ -108,6 +103,8 @@ public class SearchEngineFilterBuilderTests
 
 
         // Assert
-        filter.WithDeepEqual(expectedFilter).IgnoreUnmatchedProperties().Assert();
+        filter.WithDeepEqual(expectedFilter)
+            .IgnoreUnmatchedProperties()
+            .Assert();
     }
 }

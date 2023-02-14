@@ -1,104 +1,184 @@
-using AutoMapper;
-using DeepEqual.Syntax;
 using Microsoft.Extensions.DependencyInjection;
+using WebApplication1.Abstraction.Common.SearchEngine;
 using WebApplication1.Common.SearchEngine;
-using WebApplication1.Common.SearchEngine.Abstractions;
 using WebApplication1.Common.SearchEngine.DependencyInjection;
-using WebApplication1.Implementation.Helpers;
-using WebApplication1.Implementation.Helpers.Extensions;
-using WebApplication1.Models;
-using WebApplication1.ViewModels;
+using WebApplication1.Common.SearchEngine.KeywordHandlers;
 
 namespace WebApplication1.Tests;
 
 public class SearchEngineTests
 {
     [Fact]
-    public void Test1()
+    public void ExecuteEngine_FilterWithContains_ShouldReturnFilteredCollection()
     {
-        var data = new List<MyTestClass>()
-        {
-            new MyTestClass()
-            {
-                Field1 = 1,
-                Field2 = "Hello, world! 1",
-                Field3 = DateTime.Now.AddDays(-1).TruncateHours()
-            },
-            new MyTestClass()
-            {
-                Field1 = 2,
-                Field2 = "Hello, world! 2",
-                Field3 = DateTime.Now.AddDays(-2).TruncateHours()
-            },
-            new MyTestClass()
-            {
-                Field1 = 2,
-                Field2 = "Hello, world! 3",
-                Field3 = DateTime.Now.AddDays(-3).TruncateHours()
-            },
-            new MyTestClass()
-            {
-                Field1 = null,
-                Field2 = "Hello, world! 4",
-                Field3 = DateTime.Now.AddDays(-4).TruncateHours()
-            }
-        };
-        var query = data.AsQueryable();
-        var searchEngine = GetSearchEngine();
+        // Arrange
+        var item1 = new DummyEntity(Field1: "1", Field2: "2");
+        var item2 = new DummyEntity(Field1: "2", Field2: "3");
+        var item3 = new DummyEntity(Field1: "3", Field2: null);
 
-        var result1 = searchEngine.ExecuteEngine(query, "field1 is 1 field2 contains world order-by field3")
+        var data = new List<DummyEntity> { item1, item2, item3 };
+        // ( Field1 = 1 || Field1 = 2 ) && ( Field2 = 2 || Field2 = 3 )
+        var filter = new SearchEngineFilterBuilder()
+            .WithContains(nameof(DummyEntity.Field1), "1", out var filterForField1)
+            .WithOrContains(filterForField1, nameof(DummyEntity.Field1), "2", out filterForField1)
+            .WithContains(nameof(DummyEntity.Field2), "2", out var filterForField2)
+            .WithOrContains(filterForField2, nameof(DummyEntity.Field2), "3", out filterForField2)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
             .ToArray();
-        var result2 = searchEngine.ExecuteEngine(query, "field2 contains world order-by field3 asc")
-            .ToArray();
+
+
+        // Assert
+        Assert.Equal(2, filtered.Length);
+        Assert.Contains(item1, filtered);
+        Assert.Contains(item2, filtered);
     }
 
-    private ISearchEngine GetSearchEngine()
+    [Fact]
+    public void ExecuteEngine_FilterWithContainsAndLevelTwoAttributeAccess_ShouldReturnFilteredCollection()
     {
+        // Arrange
+        var item1 = new ComplexDummyEntity(Field1: "1", Field2: new SubDummyEntity(Field3: "2"));
+        var item2 = new ComplexDummyEntity(Field1: "3", Field2: new SubDummyEntity(Field3: "4"));
+        var item3 = new ComplexDummyEntity(Field1: "5", Field2: new SubDummyEntity(Field3: "6"));
+
+        var data = new List<ComplexDummyEntity> { item1, item2, item3 };
+        // Field1 = 1 && Field2.Field3 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithContains(nameof(ComplexDummyEntity.Field1), "1", out _)
+            .WithContains($"{nameof(ComplexDummyEntity.Field2)}.{nameof(ComplexDummyEntity.Field2.Field3)}", "2", out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+
+    [Fact]
+    public void ExecuteEngine_FilterWithEquals_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityInt(Field1: 1, Field2: 2);
+        var item2 = new DummyEntityInt(Field1: 3, Field2: 4);
+
+        var data = new List<DummyEntityInt> { item1, item2 };
+        // Field1 = 1 & Field2 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithEquals(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.IntegerNumber, out _)
+            .WithEquals(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.IntegerNumber, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+
+    [Fact]
+    public void ExecuteEngine_FilterWithEqualsAndNullableFields_ShouldReturnFilteredCollection()
+    {
+        // Arrange
+        var item1 = new DummyEntityNullableInt(Field1: 1, Field2: 2);
+        var item2 = new DummyEntityNullableInt(Field1: 3, Field2: null);
+
+        var data = new List<DummyEntityNullableInt> { item1, item2 };
+        // Field1 = 1 & Field2 = 2
+        var filter = new SearchEngineFilterBuilder()
+            .WithEquals(nameof(DummyEntity.Field1), "1", AttributeTypeEnum.IntegerNumber, out _)
+            .WithEquals(nameof(DummyEntity.Field2), "2", AttributeTypeEnum.IntegerNumber, out _)
+            .Build();
+
+
+        // Act
+        var source = data.AsQueryable();
+        var searchEngine = CreateSearchEngine();
+
+        var filtered = searchEngine
+            .ExecuteEngine(source, filter)
+            .ToArray();
+
+
+        // Assert
+        Assert.Single(filtered, item1);
+    }
+
+    [Fact]
+    public void AddSearchEngine2_AddSearchEngineInDependenciesCorrectly_ServicesShouldContainsAllRequiredParts()
+    {
+        // Arrange & Act
         var services = new ServiceCollection();
         services.AddSearchEngine();
-        var sp = services.BuildServiceProvider();
-        
-        return sp.GetRequiredService<ISearchEngine>();
+        services.BuildServiceProvider();
+
+
+        // Assert
+        services
+            /* Common part */
+            .AssertServiceRegistered(typeof(SearchEngine))
+            .AssertServiceRegistered(typeof(SearchEngine))
+            .AssertServiceRegistered(typeof(SearchEngineFilterValidator))
+            .AssertServiceRegistered(typeof(SearchEngineKeywordHandlerFactoryProvider))
+            .AssertServiceRegistered(typeof(SearchEngineFilterAttributeParser)) 
+            /* SearchEngineKeywordHandlers part */
+            .AssertServiceRegistered(typeof(ContainsSearchEngineKeywordHandler))
+            .AssertServiceRegistered(typeof(EqualsSearchEngineKeywordHandler))
+            /* SearchEngineKeywordHandlerFactories part */
+            .AssertServiceRegistered(typeof(ContainsSearchEngineKeywordHandlerFactory))
+            .AssertServiceRegistered(typeof(EqualsSearchEngineKeywordHandlerFactory))
+            /* AttributeParserStrategies part */
+            .AssertServiceRegistered(typeof(AttributeParseStringStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseGuidStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseIntStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseLongStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseFloatStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseDoubleStrategy))
+            .AssertServiceRegistered(typeof(AttributeParseDateTimeStrategy));
     }
-    /*
-     * if (SelectedOperator is StringOperators)
-{
-    MethodInfo method;
 
-    var value = Expression.Constant(Value);
-
-    switch ((StringOperators)SelectedOperator)
+    private ISearchEngine CreateSearchEngine()
     {
-        case StringOperators.Is:
-            condition = Expression.Equal(property, value);
-            break;
-
-        case StringOperators.IsNot:
-            condition = Expression.NotEqual(property, value);
-            break;
-
-        case StringOperators.StartsWith:
-            method = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-            condition = Expression.Call(property, method, value);
-            break;
-
-        case StringOperators.Contains:
-            method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            condition = Expression.Call(property, method, value);
-            break;
-
-        case StringOperators.EndsWith:
-            method = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
-            condition = Expression.Call(property, method, value);
-            break;
+        return new ServiceCollection()
+            .AddSearchEngine()
+            .BuildServiceProvider()
+            .GetRequiredService<ISearchEngine>();
     }
+
+    record DummyEntity(string Field1, string? Field2);
+    record DummyEntityInt(int Field1, int Field2);
+    record DummyEntityNullableInt(int? Field1, int? Field2);
+    record ComplexDummyEntity(string Field1, SubDummyEntity Field2);
+    record SubDummyEntity(string Field3);
 }
-     */
 
-    class MyTestClass
+static class Helper
+{
+    public static ServiceCollection AssertServiceRegistered(this ServiceCollection services, Type requiredServiceType)
     {
-        public int? Field1 { get; set; }
-        public string Field2 { get; set; }
-        public DateTime Field3 { get; set; }
+        Assert.Contains(services, x => x.ImplementationType == requiredServiceType);
+        return services;
     }
 }

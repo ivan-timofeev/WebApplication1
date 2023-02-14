@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Services;
+using WebApplication1.Common.SearchEngine.Models;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Implementation.ViewModels.Order;
 
@@ -78,10 +79,10 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get(string? searchQuery, int page = 1, int pageSize = 25)
+    public IActionResult Get(SearchEngineFilter? filter, int page = 1, int pageSize = 25)
     {
         var orders = _ordersRepository
-            .SearchWithPagination(searchQuery, page, pageSize)
+            .SearchWithPagination(filter, page, pageSize)
             .MapTo<OrderVm>();
 
         return Ok(orders);

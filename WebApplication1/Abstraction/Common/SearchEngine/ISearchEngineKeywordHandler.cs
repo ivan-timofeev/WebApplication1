@@ -1,7 +1,10 @@
-namespace WebApplication1.Common.SearchEngine.Abstractions;
+using System.Linq.Expressions;
+using WebApplication1.Common.SearchEngine.Models;
+
+
+namespace WebApplication1.Abstraction.Common.SearchEngine;
 
 public interface ISearchEngineKeywordHandler
 {
-    string Keyword { get; }
-    IQueryable<T> HandleKeyword<T>(IQueryable<T> source, string attributeName, object attributeValue);
+    Expression<Func<T, bool>> HandleKeyword<T>(SearchEngineFilter.FilterToken filterToken);
 }
