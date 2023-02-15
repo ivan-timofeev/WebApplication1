@@ -7,3 +7,5 @@
 - [ ] Убрать возврат обновленного стейта сущностей из Command-like запросов
 - [ ] **[Важно]** Авторизация (через гугл и эпл) (или реализовать при помощи Krakend и поставщиков авторизации)
 - [ ] Покрытие тестами
+
+- [ ] Почитать и применить https://learn.microsoft.com/ru-ru/aspnet/core/web-api/advanced/conventions?view=aspnetcore-7.0
