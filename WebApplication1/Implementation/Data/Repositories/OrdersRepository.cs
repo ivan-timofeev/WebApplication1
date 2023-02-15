@@ -48,7 +48,7 @@ public class OrdersRepository : IOrdersRepository
         return order;
     }
 
-    public Order Update(Guid entityId, Order newEntityState)
+    public void Update(Guid entityId, Order newEntityState)
     {
         var order = GetOrdersSource()
             .FirstOrDefault(x => x.Id == entityId);
@@ -73,8 +73,6 @@ public class OrdersRepository : IOrdersRepository
         order.OrderStateHierarchical = newEntityState.OrderStateHierarchical;
 
         _dbContext.SaveChanges();
-
-        return order;
     }
 
     public void Delete(Guid entityId)

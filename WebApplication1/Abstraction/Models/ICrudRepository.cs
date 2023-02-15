@@ -1,4 +1,4 @@
-using WebApplication1.Data.Repositories;
+using WebApplication1.Common.Exceptions;
 
 namespace WebApplication1.Abstraction.Models;
 
@@ -9,7 +9,7 @@ public interface ICrudRepository<T>
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
     T Read(Guid id);
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
-    T Update(Guid entityId, T newEntityState);
+    void Update(Guid entityId, T newEntityState);
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
     void Delete(Guid entityId);
 
@@ -37,15 +37,15 @@ public interface ICrudRepository<T>
         }
     }
 
-    T? TryUpdate(Guid entityId, T newEntityState)
+    void TryUpdate(Guid entityId, T newEntityState)
     {
         try
         {
-            return Update(entityId, newEntityState);
+            Update(entityId, newEntityState);
         }
         catch
         {
-            return null;
+            // Ignored
         }
     }
 

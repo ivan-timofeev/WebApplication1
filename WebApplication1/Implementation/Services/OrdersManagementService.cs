@@ -59,7 +59,7 @@ public class OrdersManagementService : IOrdersManagementService
         return _ordersRepository.Read(orderId);
     }
 
-    public Order UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model)
+    public void UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model)
     {
         _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
@@ -107,8 +107,6 @@ public class OrdersManagementService : IOrdersManagementService
             
             _databaseTransactionsManagementService.CommitTransaction();
             isTransactionCommitted = true;
-
-            return order;
         }
         finally
         {
@@ -119,7 +117,7 @@ public class OrdersManagementService : IOrdersManagementService
         }
     }
 
-    public Order UpdateOrderState(Guid orderId, UpdateOrderStateVm model)
+    public void UpdateOrderState(Guid orderId, UpdateOrderStateVm model)
     {
         _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
         var isTransactionCommitted = false;
@@ -145,8 +143,6 @@ public class OrdersManagementService : IOrdersManagementService
             
             _databaseTransactionsManagementService.CommitTransaction();
             isTransactionCommitted = true;
-
-            return order;
         }
         finally
         {

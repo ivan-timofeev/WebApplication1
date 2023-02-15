@@ -51,12 +51,12 @@ public class ManufacturersController : ControllerBase
     public IActionResult Put(Guid id, ManufacturerUpdateVm model)
     {
         var manufacturer = _mapper.Map<Manufacturer>(model);
-        manufacturer = _manufacturersRepository.Update(id, manufacturer);
+        _manufacturersRepository.Update(id, manufacturer);
         
         return AcceptedAtAction(
-            nameof(Get), 
-            new { id = manufacturer.Id },
-            _mapper.Map<ManufacturerVm>(manufacturer));
+            nameof(Get),
+            nameof(ManufacturersController),
+            routeValues: new { manufacturer.Id });
     }
     
     [HttpDelete("{id:guid}")]

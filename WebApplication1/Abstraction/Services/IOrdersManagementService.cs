@@ -7,7 +7,7 @@ public interface IOrdersManagementService
 {
     Order CreateOrder(OrderCreateVm model);
     Order GetOrder(Guid orderId);
-    Order UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model);
-    Order UpdateOrderState(Guid orderId, UpdateOrderStateVm model);
+    void UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model);
+    void UpdateOrderState(Guid orderId, UpdateOrderStateVm model);
     void DeleteOrder(Guid orderId);
 }

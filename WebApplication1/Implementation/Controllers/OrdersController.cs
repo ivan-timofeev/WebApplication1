@@ -52,23 +52,23 @@ public class OrdersController : ControllerBase
     [HttpPut("{id:guid}/UpdateOrderState")]
     public IActionResult Put(Guid id, UpdateOrderStateVm model)
     {
-        var order = _ordersManagementService.UpdateOrderState(id, model);
+        _ordersManagementService.UpdateOrderState(id, model);
 
         return AcceptedAtAction(
             nameof(Get),
-            new { Id = id },
-            _mapper.Map<OrderVm>(order));
+            nameof(OrdersController),
+            routeValues: new { Id = id });
     }
     
     [HttpPut("{id:guid}/UpdateOrderPosition")]
     public IActionResult Put(Guid id, UpdateOrderPositionVm model)
     {
-        var order = _ordersManagementService.UpdateOrderPosition(id, model);
+        _ordersManagementService.UpdateOrderPosition(id, model);
 
         return AcceptedAtAction(
             nameof(Get),
-            new { Id = id },
-            _mapper.Map<OrderVm>(order));
+            nameof(OrdersController),
+            routeValues: new { Id = id });
     }
     
     [HttpDelete("{id:guid}")]

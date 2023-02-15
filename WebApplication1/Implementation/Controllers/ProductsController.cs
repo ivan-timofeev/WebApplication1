@@ -52,12 +52,12 @@ public class ProductsController : ControllerBase
     public IActionResult Put(Guid id, ProductUpdateVm model)
     {
         var product = _mapper.Map<Product>(model);
-        product = _productsRepository.Update(id, product);
+        _productsRepository.Update(id, product);
         
         return AcceptedAtAction(
-            nameof(Get), 
-            new { id = product.Id },
-            _mapper.Map<ProductVm>(product));
+            nameof(Get),
+            nameof(ProductsController),
+            routeValues: new { Id = id });
     }
     
     [HttpDelete("{id:guid}")]

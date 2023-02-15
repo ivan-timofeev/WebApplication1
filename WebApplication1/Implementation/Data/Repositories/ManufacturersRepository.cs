@@ -43,7 +43,7 @@ public class ManufacturersRepository : IManufacturersRepository
         return manufacturer;
     }
 
-    public Manufacturer Update(Guid entityId, Manufacturer newEntityState)
+    public void Update(Guid entityId, Manufacturer newEntityState)
     {
         var manufacturer = GetManufacturersSource()
             .FirstOrDefault(x => x.Id == entityId);
@@ -56,8 +56,6 @@ public class ManufacturersRepository : IManufacturersRepository
         manufacturer.Name = newEntityState.Name;
 
         _dbContext.SaveChanges();
-
-        return manufacturer;
     }
 
     public void Delete(Guid entityId)

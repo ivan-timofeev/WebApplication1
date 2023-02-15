@@ -42,7 +42,7 @@ public class CustomersRepository : ICustomersRepository
         return customer;
     }
 
-    public Customer Update(Guid entityId, Customer newEntityState)
+    public void Update(Guid entityId, Customer newEntityState)
     {
         var customer = GetCustomersSource()
             .FirstOrDefault(x => x.Id == entityId);
@@ -55,8 +55,6 @@ public class CustomersRepository : ICustomersRepository
         customer.Orders = newEntityState.Orders;
 
         _dbContext.SaveChanges();
-
-        return customer;
     }
 
     public void Delete(Guid entityId)

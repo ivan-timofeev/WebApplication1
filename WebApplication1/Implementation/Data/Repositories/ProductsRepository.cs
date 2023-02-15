@@ -43,7 +43,7 @@ public class ProductsRepository : IProductsRepository
         return product;
     }
 
-    public Product Update(Guid entityId, Product newEntityState)
+    public void Update(Guid entityId, Product newEntityState)
     {
         var product = GetProductsSource()
             .FirstOrDefault(x => x.Id == entityId);
@@ -58,8 +58,6 @@ public class ProductsRepository : IProductsRepository
         product.ProductCharacteristics = newEntityState.ProductCharacteristics;
 
         _dbContext.SaveChanges();
-
-        return product;
     }
 
     public void Delete(Guid entityId)

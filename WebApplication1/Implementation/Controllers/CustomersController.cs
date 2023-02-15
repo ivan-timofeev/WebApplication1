@@ -51,12 +51,12 @@ public class CustomersController : ControllerBase
     public IActionResult Put(Guid id, CustomerUpdateVm model)
     {
         var customer = _mapper.Map<Customer>(model);
-        customer = _customersRepository.Update(id, customer);
+        _customersRepository.Update(id, customer);
         
         return AcceptedAtAction(
-            nameof(Get), 
-            new { id = customer.Id },
-            _mapper.Map<CustomerVm>(customer));
+            nameof(Get),
+            nameof(CustomersController),
+            routeValues: new { customer.Id });
     }
     
     [HttpDelete("{id:guid}")]

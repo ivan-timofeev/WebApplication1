@@ -47,7 +47,7 @@ public class SalePointsRepository : ISalePointsRepository
         return salePoint;
     }
 
-    public SalePoint Update(Guid entityId, SalePoint newEntityState)
+    public void Update(Guid entityId, SalePoint newEntityState)
     {
         var salePoint = GetSalePointsSource()
             .FirstOrDefault(x => x.Id == entityId);
@@ -64,8 +64,6 @@ public class SalePointsRepository : ISalePointsRepository
         salePoint.SaleItems = newEntityState.SaleItems;
 
         _dbContext.SaveChanges();
-
-        return salePoint;
     }
 
     public void Delete(Guid entityId)
