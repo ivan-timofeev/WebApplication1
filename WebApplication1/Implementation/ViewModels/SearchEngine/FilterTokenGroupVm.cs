@@ -6,7 +6,8 @@ namespace WebApplication1.ViewModels.SearchEngine;
 
 public class FilterTokenGroupVm : FilterTokenBaseVm
 {
-    [MinLength(1)]
+    [Required, MinLength(1)]
     public IEnumerable<FilterTokenBaseVm> FilterTokens { get; init; }
+    [Required]
     public FilterTokenGroupOperationEnum Operation { get; init; }
 }
