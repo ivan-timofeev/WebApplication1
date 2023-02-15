@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
@@ -67,8 +68,10 @@ public class ProductsController : ControllerBase
         return Accepted();
     }
 
-    [HttpGet]
-    public IActionResult Get(SearchEngineFilter? filter, int page = 1, int pageSize = 25)
+    [HttpPost("Search")]
+    public IActionResult Search(
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]
+        SearchEngineFilter? filter = null, int page = 1, int pageSize = 25)
     {
         var result = _productsRepository
             .SearchWithPagination(filter, page, pageSize)
