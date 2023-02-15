@@ -1,9 +1,12 @@
 using AutoMapper;
+using WebApplication1.Abstraction.Services.SearchEngine;
 using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
+using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
 using WebApplication1.ViewModels.Customer;
 using WebApplication1.ViewModels.Manufacturer;
+using WebApplication1.ViewModels.SearchEngine;
 
 namespace WebApplication1.Implementation.Helpers;
 
@@ -62,6 +65,13 @@ public static class AutomapperConfiguration
 
         cfg.CreateMap<CustomerCreateVm, Customer>();
         cfg.CreateMap<CustomerUpdateVm, Customer>();
+
+        cfg.CreateMap<FilterTokenBaseVm, IFilterToken>()
+            .Include<FilterTokenVm, SearchEngineFilter.FilterToken>()
+            .Include<FilterTokenGroupVm, SearchEngineFilter.FilterTokenGroup>();
+        cfg.CreateMap<FilterTokenVm, SearchEngineFilter.FilterToken>();
+        cfg.CreateMap<FilterTokenGroupVm, SearchEngineFilter.FilterTokenGroup>();
+        cfg.CreateMap<SearchEngineFilterVm, SearchEngineFilter>();
     }
 
     public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)
