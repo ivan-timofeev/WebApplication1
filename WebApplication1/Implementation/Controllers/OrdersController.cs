@@ -79,7 +79,7 @@ public class OrdersController : ControllerBase
         return Accepted();
     }
 
-    [HttpGet("Search")]
+    [HttpPost("Search")]
     public IActionResult Search(
         [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]
         SearchEngineFilter? filter = null, int page = 1, int pageSize = 25)
