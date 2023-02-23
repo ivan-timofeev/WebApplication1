@@ -22,3 +22,9 @@ Back-end часть интернет магазина.
 5. xUnit (Testing)
 6. AutoBogus (Tests)
 7. BenchmarkDotNet
+
+### Основные принципы проектирования
+1. SOLID
+2. Clean Architecture
+3. GoF
+4. REST
