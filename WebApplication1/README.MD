@@ -18,10 +18,12 @@ Back-end часть интернет магазина.
 1. ASP.NET Core 6 WebAPI
 2. EFCore (Code-first)
 3. PostgreSQL (SQL Database)
-4. AutoMapper (Mapping)
-5. xUnit (Testing)
-6. AutoBogus (Tests)
-7. BenchmarkDotNet
+4. Redis (NO-SQL Database)
+5. Docker
+6. AutoMapper (Mapping)
+7. xUnit (Testing)
+8. AutoBogus (Tests)
+9. BenchmarkDotNet
 
 ### Основные принципы проектирования
 1. SOLID
