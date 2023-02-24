@@ -53,10 +53,7 @@ public class CustomersController : ControllerBase
         var customer = _mapper.Map<Customer>(model);
         _customersRepository.Update(id, customer);
         
-        return AcceptedAtAction(
-            nameof(Get),
-            nameof(CustomersController),
-            routeValues: new { customer.Id });
+        return Accepted();
     }
     
     [HttpDelete("{id:guid}")]

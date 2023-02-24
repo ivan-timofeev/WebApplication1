@@ -47,8 +47,12 @@ public static class AutomapperConfiguration
 
         cfg.CreateMap<Order, OrderVm>();
         cfg.CreateMap<OrderStateHierarchicalItem, OrderStateHierarchicalItemVm>();
+
+        cfg.CreateMap<SalePoint, CustomerOrderSalePointVm>();
+        cfg.CreateMap<Order, CustomerOrderVm>();
+        cfg.CreateMap<OrderItem, CustomerOrderItemVm>();
     }
-    
+
     private static void ConfigureViewModelToModel(IMapperConfigurationExpression cfg)
     {
         cfg.CreateMap<ProductCharacteristicVm, ProductCharacteristic>()

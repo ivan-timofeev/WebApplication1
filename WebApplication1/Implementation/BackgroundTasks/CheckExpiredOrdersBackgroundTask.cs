@@ -65,7 +65,7 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
             .Where(x => x.OrderStateHierarchical.Count == 1
                         && x.OrderStateHierarchical.First().State == OrderStateEnum.Creating)
             .Where(x => DateTime.UtcNow - x.OrderStateHierarchical.First().EnteredDateTimeUtc
-                        >= TimeSpan.FromMinutes(15))
+                        >= TimeSpan.FromMinutes(150))
             .Select(x => x.Id)
             .ToArray();
 

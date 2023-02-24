@@ -12,6 +12,7 @@ public static class AddRepositoriesExtension
         services.AddTransient<ISalePointsRepository, SalePointsRepository>();
         services.AddTransient<ICustomersRepository, CustomersRepository>();
         services.AddTransient<IOrdersRepository, OrdersRepository>();
+        services.AddTransient<ICustomerOrdersRepository, CustomerOrdersRepository>();
 
         return services;
     }

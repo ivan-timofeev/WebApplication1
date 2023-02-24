@@ -54,10 +54,7 @@ public class ProductsController : ControllerBase
         var product = _mapper.Map<Product>(model);
         _productsRepository.Update(id, product);
         
-        return AcceptedAtAction(
-            nameof(Get),
-            nameof(ProductsController),
-            routeValues: new { Id = id });
+        return Accepted();
     }
     
     [HttpDelete("{id:guid}")]

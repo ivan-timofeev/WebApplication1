@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using WebApplication1.Common.Middlewares;
 using WebApplication1.Implementation.BackgroundTasks;
 using WebApplication1.Implementation.Helpers.Configuration;
@@ -14,6 +15,7 @@ builder.Services
         x.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
         x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         x.JsonSerializerOptions.WriteIndented = true;
+        x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
     
     

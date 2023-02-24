@@ -54,10 +54,7 @@ public class OrdersController : ControllerBase
     {
         _ordersManagementService.UpdateOrderState(id, model);
 
-        return AcceptedAtAction(
-            nameof(Get),
-            nameof(OrdersController),
-            routeValues: new { Id = id });
+        return Accepted();
     }
     
     [HttpPut("{id:guid}/UpdateOrderPosition")]
@@ -65,10 +62,7 @@ public class OrdersController : ControllerBase
     {
         _ordersManagementService.UpdateOrderPosition(id, model);
 
-        return AcceptedAtAction(
-            nameof(Get),
-            nameof(OrdersController),
-            routeValues: new { Id = id });
+        return Accepted();
     }
     
     [HttpDelete("{id:guid}")]

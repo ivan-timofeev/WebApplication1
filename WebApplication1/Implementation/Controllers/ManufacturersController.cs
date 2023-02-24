@@ -53,10 +53,7 @@ public class ManufacturersController : ControllerBase
         var manufacturer = _mapper.Map<Manufacturer>(model);
         _manufacturersRepository.Update(id, manufacturer);
         
-        return AcceptedAtAction(
-            nameof(Get),
-            nameof(ManufacturersController),
-            routeValues: new { manufacturer.Id });
+        return Accepted();
     }
     
     [HttpDelete("{id:guid}")]
