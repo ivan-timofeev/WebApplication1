@@ -36,7 +36,8 @@ public class CustomersRepository : ICustomersRepository
 
         if (customer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(id);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Customer), id);
         }
 
         return customer;
@@ -49,7 +50,7 @@ public class CustomersRepository : ICustomersRepository
         
         if (customer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(nameof(Customer), entityId);
         }
 
         customer.Orders = newEntityState.Orders;
@@ -63,7 +64,7 @@ public class CustomersRepository : ICustomersRepository
         
         if (customer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(nameof(Customer), entityId);
         }
         
         customer.IsDeleted = true;
@@ -84,7 +85,8 @@ public class CustomersRepository : ICustomersRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Customer), notFoundEntitiesIds.ToArray());
         }
 
         return customers.ToArray();
@@ -101,7 +103,8 @@ public class CustomersRepository : ICustomersRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Customer), notFoundEntitiesIds.ToArray());
         }
 
         return PagedModel<Customer>.Paginate(customers, page, pageSize);

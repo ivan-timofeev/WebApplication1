@@ -37,7 +37,8 @@ public class ProductsRepository : IProductsRepository
 
         if (product is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(id);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Product), id);
         }
 
         return product;
@@ -50,7 +51,8 @@ public class ProductsRepository : IProductsRepository
         
         if (product is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Product), entityId);
         }
 
         product.Name = newEntityState.Name;
@@ -66,7 +68,8 @@ public class ProductsRepository : IProductsRepository
         
         if (product is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Product), entityId);
         }
         
         product.IsDeleted = true;
@@ -88,7 +91,8 @@ public class ProductsRepository : IProductsRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Product), notFoundEntitiesIds.ToArray());
         }
 
         return products.ToArray();
@@ -100,11 +104,14 @@ public class ProductsRepository : IProductsRepository
             .Where(x => ids.Contains(x.Id))
             .AsNoTracking();
 
-        var notFoundEntitiesIds = ids.Except(products.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(products.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Product), notFoundEntitiesIds);
         }
 
         return PagedModel<Product>.Paginate(products, page, pageSize);

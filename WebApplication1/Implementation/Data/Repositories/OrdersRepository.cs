@@ -42,7 +42,8 @@ public class OrdersRepository : IOrdersRepository
 
         if (order is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(id);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Order), id);
         }
 
         return order;
@@ -55,7 +56,8 @@ public class OrdersRepository : IOrdersRepository
         
         if (order is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Order), entityId);
         }
 
         order.CustomerId = newEntityState.CustomerId;
@@ -81,7 +83,8 @@ public class OrdersRepository : IOrdersRepository
         
         if (order is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Order), entityId);
         }
         
         order.IsDeleted = true;
@@ -103,7 +106,8 @@ public class OrdersRepository : IOrdersRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds);
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Order), notFoundEntitiesIds);
         }
 
         return orders.ToArray();
@@ -120,7 +124,8 @@ public class OrdersRepository : IOrdersRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Order), notFoundEntitiesIds.ToArray());
         }
 
         return PagedModel<Order>.Paginate(orders, page, pageSize);

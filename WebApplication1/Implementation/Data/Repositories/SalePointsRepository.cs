@@ -41,7 +41,8 @@ public class SalePointsRepository : ISalePointsRepository
 
         if (salePoint is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(id);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(SalePoint), id);
         }
 
         return salePoint;
@@ -54,7 +55,8 @@ public class SalePointsRepository : ISalePointsRepository
         
         if (salePoint is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(SalePoint), entityId);
         }
         
         EnsureProductsAreExists(newEntityState);
@@ -72,7 +74,8 @@ public class SalePointsRepository : ISalePointsRepository
         
         if (salePoint is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(SalePoint), entityId);
         }
         
         salePoint.IsDeleted = true;
@@ -93,7 +96,8 @@ public class SalePointsRepository : ISalePointsRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(SalePoint), notFoundEntitiesIds);
         }
 
         return salePoints.ToArray();
@@ -110,7 +114,8 @@ public class SalePointsRepository : ISalePointsRepository
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(SalePoint), notFoundEntitiesIds);
         }
 
         return PagedModel<SalePoint>.Paginate(salePoints, page, pageSize);

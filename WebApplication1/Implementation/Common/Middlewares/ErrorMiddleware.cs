@@ -20,7 +20,7 @@ public class ErrorHandlerMiddleware
         }
         catch (Exception ex)
         {
-            if (ex is not IErrorVmProvider errorVmProvider)
+            if (ex is not ICanBeProcessedByErrorMiddleware errorVmProvider)
             {
                 await _next(context);
                 return;
@@ -30,11 +30,11 @@ public class ErrorHandlerMiddleware
         }
     }
 
-    private async Task RespondJson(HttpContext context, IErrorVmProvider errorVmProvider)
+    private async Task RespondJson(HttpContext context, ICanBeProcessedByErrorMiddleware canBeProcessedByErrorMiddleware)
     {
         var response = context.Response;
         response.ContentType = "application/json";
-        response.StatusCode = errorVmProvider.GetHttpStatusCode();
-        await response.WriteAsync(JsonSerializer.Serialize(errorVmProvider.GetErrorVm()));
+        response.StatusCode = canBeProcessedByErrorMiddleware.GetHttpStatusCode();
+        await response.WriteAsync(JsonSerializer.Serialize(canBeProcessedByErrorMiddleware.GetErrorVm()));
     }
 }

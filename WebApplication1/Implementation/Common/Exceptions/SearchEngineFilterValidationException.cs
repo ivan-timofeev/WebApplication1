@@ -3,7 +3,8 @@ using WebApplication1.ViewModels;
 
 namespace WebApplication1.Common.Exceptions;
 
-public class SearchEngineFilterValidationException : Exception, IErrorVmProvider
+public class SearchEngineFilterValidationException
+    : Exception, ICanBeProcessedByErrorMiddleware
 {
     public SearchEngineFilterValidationException(string message)
         : base(message)

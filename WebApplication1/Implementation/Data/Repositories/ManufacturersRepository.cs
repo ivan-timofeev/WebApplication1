@@ -37,7 +37,8 @@ public class ManufacturersRepository : IManufacturersRepository
 
         if (manufacturer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(id);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Manufacturer), id);
         }
 
         return manufacturer;
@@ -50,7 +51,8 @@ public class ManufacturersRepository : IManufacturersRepository
         
         if (manufacturer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Manufacturer), entityId);
         }
 
         manufacturer.Name = newEntityState.Name;
@@ -64,7 +66,8 @@ public class ManufacturersRepository : IManufacturersRepository
         
         if (manufacturer is null)
         {
-            throw new EntityNotFoundInTheDatabaseException(entityId);
+            throw new EntityNotFoundInTheDatabaseException(
+                nameof(Manufacturer), entityId);
         }
         
         manufacturer.IsDeleted = true;
@@ -80,11 +83,14 @@ public class ManufacturersRepository : IManufacturersRepository
             .AsNoTracking()
             .ToArray();
 
-        var notFoundEntitiesIds = ids.Except(manufacturers.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(manufacturers.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Manufacturer), notFoundEntitiesIds);
         }
 
         return manufacturers.ToArray();
@@ -96,11 +102,14 @@ public class ManufacturersRepository : IManufacturersRepository
             .Where(x => ids.Contains(x.Id))
             .AsNoTracking();
 
-        var notFoundEntitiesIds = ids.Except(manufacturers.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(manufacturers.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {
-            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(notFoundEntitiesIds.ToArray());
+            throw new OneOrMoreEntitiesNotFoundInTheDatabaseException(
+                nameof(Manufacturer), notFoundEntitiesIds);
         }
 
         return PagedModel<Manufacturer>.Paginate(manufacturers, page, pageSize);
