@@ -5,7 +5,7 @@ namespace WebApplication1.Abstraction.Services;
 
 public interface IOrdersManagementService
 {
-    Order CreateOrder(OrderCreateVm model);
+    Guid CreateOrder(OrderCreateVm model);
     Order GetOrder(Guid orderId);
     void UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model);
     void UpdateOrderState(Guid orderId, UpdateOrderStateVm model);

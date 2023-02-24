@@ -24,14 +24,14 @@ public class SalePointsRepository : ISalePointsRepository
         _searchEngine = searchEngine;
     }
 
-    public SalePoint Create(SalePoint entity)
+    public Guid Create(SalePoint entity)
     {
         EnsureProductsAreExists(entity);
-        
+
         _dbContext.SalePoints.Add(entity);
         _dbContext.SaveChanges();
 
-        return Read(entity.Id);
+        return entity.Id;
     }
 
     public SalePoint Read(Guid id)
@@ -164,7 +164,7 @@ public class SalePointsRepository : ISalePointsRepository
             .Select(x => x.ProductId);
 
         // TODO: выглядит чудовищно неэффективным, хочется метод типа EnsureExists или AreExists
-        var products = _productsRepository
+        _ = _productsRepository
             .Read(productIds)
             .ToArray();
     }

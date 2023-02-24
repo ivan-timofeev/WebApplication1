@@ -21,12 +21,12 @@ public class ProductsRepository : IProductsRepository
         _searchEngine = searchEngine;
     }
 
-    public Product Create(Product entity)
+    public Guid Create(Product entity)
     {
         _dbContext.Products.Add(entity);
         _dbContext.SaveChanges();
 
-        return entity;
+        return entity.Id;
     }
 
     public Product Read(Guid id)
@@ -82,7 +82,9 @@ public class ProductsRepository : IProductsRepository
             .AsNoTracking()
             .ToArray();
 
-        var notFoundEntitiesIds = ids.Except(products.Select(x => x.Id));
+        var notFoundEntitiesIds = ids
+            .Except(products.Select(x => x.Id))
+            .ToArray();
 
         if (notFoundEntitiesIds.Any())
         {

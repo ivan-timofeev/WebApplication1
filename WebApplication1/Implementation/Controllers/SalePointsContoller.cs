@@ -31,12 +31,11 @@ public class SalePointsController : ControllerBase
     public IActionResult Post(SalePointCreateVm model)
     {
         var salePoint = _mapper.Map<SalePoint>(model);
-        salePoint = _salePointsRepository.Create(salePoint);
+        var createdSalePointId = _salePointsRepository.Create(salePoint);
         
         return CreatedAtAction(
             nameof(Get), 
-            new { id = salePoint.Id },
-            _mapper.Map<SalePointVm>(salePoint));
+            value: new { SalePointId = createdSalePointId});
     }
 
     [HttpGet("{id:guid}")]

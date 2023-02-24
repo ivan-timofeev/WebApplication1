@@ -31,12 +31,11 @@ public class CustomersController : ControllerBase
     public IActionResult Post(CustomerCreateVm model)
     {
         var customer = _mapper.Map<Customer>(model);
-        customer = _customersRepository.Create(customer);
+        var createdCustomerId = _customersRepository.Create(customer);
         
         return CreatedAtAction(
             nameof(Get), 
-            new { id = customer.Id },
-            _mapper.Map<CustomerVm>(customer));
+            value: new { CustomerId = createdCustomerId });
     }
     
     [HttpGet("{id:guid}")]

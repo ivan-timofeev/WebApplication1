@@ -5,7 +5,7 @@ namespace WebApplication1.Abstraction.Models;
 public interface ICrudRepository<T>
     where T : class, IDomainModel
 {
-    T Create(T entity);
+    Guid Create(T entity);
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
     T Read(Guid id);
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
@@ -13,7 +13,7 @@ public interface ICrudRepository<T>
     /// <exception cref="EntityNotFoundInTheDatabaseException"></exception>
     void Delete(Guid entityId);
 
-    T? TryCreate(T entity)
+    Guid? TryCreate(T entity)
     {
         try
         {

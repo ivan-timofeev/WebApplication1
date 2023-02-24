@@ -31,12 +31,11 @@ public class ProductsController : ControllerBase
     public IActionResult Post(ProductCreateVm model)
     {
         var product = _mapper.Map<Product>(model);
-        product = _productsRepository.Create(product);
+        var createdProductId = _productsRepository.Create(product);
         
         return CreatedAtAction(
             nameof(Get), 
-            new { id = product.Id },
-            _mapper.Map<ProductVm>(product));
+            value: new { ProductId = createdProductId });
     }
     
     [HttpGet("{id:guid}")]

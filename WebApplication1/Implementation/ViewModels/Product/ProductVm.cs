@@ -6,5 +6,6 @@ public record ProductVm(
     DateTime? UpdatedDateTimeUtc,
     string Name,
     string? Description,
+    string? ImageUri,
     ICollection<ProductCharacteristicVm>? ProductCharacteristics
 );

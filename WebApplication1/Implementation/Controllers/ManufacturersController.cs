@@ -31,12 +31,11 @@ public class ManufacturersController : ControllerBase
     public IActionResult Post(ManufacturerCreateVm model)
     {
         var manufacturer = _mapper.Map<Manufacturer>(model);
-        manufacturer = _manufacturersRepository.Create(manufacturer);
+        var createdManufacturerId = _manufacturersRepository.Create(manufacturer);
         
         return CreatedAtAction(
             nameof(Get), 
-            new { id = manufacturer.Id },
-            _mapper.Map<ManufacturerVm>(manufacturer));
+            value: new { ManufacturerId = createdManufacturerId });
     }
     
     [HttpGet("{id:guid}")]

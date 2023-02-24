@@ -27,12 +27,12 @@ public class OrdersRepository : IOrdersRepository
         _salePointsRepository = salePointsRepository;
     }
 
-    public Order Create(Order entity)
+    public Guid Create(Order entity)
     {
         _dbContext.Orders.Add(entity);
         _dbContext.SaveChanges();
 
-        return entity;
+        return entity.Id;
     }
 
     public Order Read(Guid id)

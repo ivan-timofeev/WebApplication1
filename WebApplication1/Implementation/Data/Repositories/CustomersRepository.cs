@@ -21,12 +21,12 @@ public class CustomersRepository : ICustomersRepository
         _searchEngine = searchEngine;
     }
 
-    public Customer Create(Customer entity)
+    public Guid Create(Customer entity)
     {
         _dbContext.Customers.Add(entity);
         _dbContext.SaveChanges();
 
-        return entity;
+        return entity.Id;
     }
 
     public Customer Read(Guid id)

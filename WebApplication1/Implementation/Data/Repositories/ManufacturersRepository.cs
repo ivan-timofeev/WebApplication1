@@ -21,12 +21,12 @@ public class ManufacturersRepository : IManufacturersRepository
         _searchEngine = searchEngine;
     }
 
-    public Manufacturer Create(Manufacturer entity)
+    public Guid Create(Manufacturer entity)
     {
         _dbContext.Manufacturers.Add(entity);
         _dbContext.SaveChanges();
 
-        return entity;
+        return entity.Id;
     }
 
     public Manufacturer Read(Guid id)

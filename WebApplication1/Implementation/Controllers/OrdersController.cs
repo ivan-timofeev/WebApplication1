@@ -33,12 +33,11 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public IActionResult Post(OrderCreateVm model)
     {
-        var order = _ordersManagementService.CreateOrder(model);
+        var createdOrderId = _ordersManagementService.CreateOrder(model);
         
         return CreatedAtAction(
             nameof(Get),
-            new { Id = order.Id },
-            _mapper.Map<OrderVm>(order));
+            value: new { OrderId = createdOrderId });
     }
     
     [HttpGet("{id:guid}")]

@@ -28,12 +28,12 @@ public class OrdersManagementService : IOrdersManagementService
     }
 
 
-    public Order CreateOrder(OrderCreateVm model)
+    public Guid CreateOrder(OrderCreateVm model)
     {
         var customer = _customersRepository.Read(model.CustomerId);
         var salePoint = _salePointsRepository.Read(model.SalePointId);
 
-        var order = _ordersRepository.Create(new Order
+        var orderId = _ordersRepository.Create(new Order
         {
             OrderStateHierarchical = new List<OrderStateHierarchicalItem>()
             {
@@ -51,7 +51,7 @@ public class OrdersManagementService : IOrdersManagementService
             SalePoint = salePoint
         });
 
-        return order;
+        return orderId;
     }
 
     public Order GetOrder(Guid orderId)
