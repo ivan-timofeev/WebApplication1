@@ -17,7 +17,7 @@ public record CustomerOrderVm(
     IEnumerable<CustomerOrderItemVm> OrderedItems);
 
 public record CustomerOrderItemVm(
-    Guid ProductId,
+    ProductVm Product,
     int Quantity,
     decimal Price
 );
