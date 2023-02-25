@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Abstraction.Models;
+using WebApplication1.Controllers;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data;
@@ -13,6 +14,7 @@ public sealed class WebApplicationDbContext : DbContext
     public DbSet<SalePoint> SalePoints { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<FileData> FilesData { get; set; }
 
     public WebApplicationDbContext(DbContextOptions<WebApplicationDbContext> options)
         : base(options)

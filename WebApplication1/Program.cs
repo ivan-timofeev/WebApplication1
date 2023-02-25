@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 using WebApplication1.Common.Middlewares;
 using WebApplication1.Implementation.BackgroundTasks;
 using WebApplication1.Implementation.Helpers.Configuration;
@@ -45,5 +46,14 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+
+var staticFileOptions = new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        root: Path.Combine(builder.Environment.ContentRootPath, "files")),
+    RequestPath = "/files"
+};
+app.UseStaticFiles(staticFileOptions);
 
 app.Run();
