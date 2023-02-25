@@ -30,4 +30,20 @@
       <Folder Include="Migrations" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="files\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="files\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="files\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="files\**" />
+    </ItemGroup>
+
 </Project>
