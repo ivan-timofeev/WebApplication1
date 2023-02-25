@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Services.SearchEngine.Models;
-using WebApplication1.ViewModels.Manufacturer;
 
 namespace WebApplication1.Controllers;
 
