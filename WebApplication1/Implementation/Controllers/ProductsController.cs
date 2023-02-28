@@ -34,7 +34,8 @@ public class ProductsController : ControllerBase
         var createdProductId = _productsRepository.Create(product);
         
         return CreatedAtAction(
-            nameof(Get), 
+            nameof(Get),
+            routeValues: new { id = createdProductId },
             value: new { ProductId = createdProductId });
     }
     

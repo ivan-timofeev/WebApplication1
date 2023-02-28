@@ -34,7 +34,8 @@ public class CustomersController : ControllerBase
         var createdCustomerId = _customersRepository.Create(customer);
         
         return CreatedAtAction(
-            nameof(Get), 
+            nameof(Get),
+            routeValues: new { id = createdCustomerId },
             value: new { CustomerId = createdCustomerId });
     }
     

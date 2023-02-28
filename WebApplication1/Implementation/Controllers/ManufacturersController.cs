@@ -34,7 +34,8 @@ public class ManufacturersController : ControllerBase
         var createdManufacturerId = _manufacturersRepository.Create(manufacturer);
         
         return CreatedAtAction(
-            nameof(Get), 
+            nameof(Get),
+            routeValues: new { id = createdManufacturerId },
             value: new { ManufacturerId = createdManufacturerId });
     }
     

@@ -37,6 +37,7 @@ public class OrdersController : ControllerBase
         
         return CreatedAtAction(
             nameof(Get),
+            routeValues: new { id = createdOrderId },
             value: new { OrderId = createdOrderId });
     }
     

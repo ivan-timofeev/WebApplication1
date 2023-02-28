@@ -34,7 +34,8 @@ public class SalePointsController : ControllerBase
         var createdSalePointId = _salePointsRepository.Create(salePoint);
         
         return CreatedAtAction(
-            nameof(Get), 
+            nameof(Get),
+            routeValues: new { id = createdSalePointId },
             value: new { SalePointId = createdSalePointId});
     }
 
