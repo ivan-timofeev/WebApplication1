@@ -6,10 +6,10 @@ namespace WebApplication1.Models;
 public class Order : DomainModel
 {
     public Guid CustomerId { get; set; }
-    public virtual Customer Customer { get; set; }
+    public Customer Customer { get; set; }
 
     public Guid SalePointId { get; set; }
-    public virtual SalePoint SalePoint { get; set; }
+    public SalePoint SalePoint { get; set; }
 
     public ICollection<OrderItem> OrderedItems { get; set; }
         = new List<OrderItem>();
@@ -19,11 +19,17 @@ public class Order : DomainModel
     public ICollection<OrderStateHierarchicalItem> OrderStateHierarchical { get; set; }
         = new List<OrderStateHierarchicalItem>();
 
-    public OrderStateEnum GetActualOrderState()
+    private OrderStateEnum GetActualOrderState()
         => OrderStateHierarchical
             .OrderByDescending(x => x.SerialNumber)
             .First()
             .State;
+
+    public Order()
+    {
+        Customer = null!;
+        SalePoint = null!;
+    }
 }
 
 [Owned]

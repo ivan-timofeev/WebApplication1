@@ -1,5 +1,4 @@
-﻿#nullable disable
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Microsoft.Extensions.DependencyInjection;
 using WebApplication1.Abstraction.Services.SearchEngine;
@@ -23,9 +22,9 @@ public class SearchEngineBenchmark
         _filter = CreateFilter();
     }
     
-    private IQueryable<DummyEntity> _source;
-    private ISearchEngine _searchEngine;
-    private SearchEngineFilter _filter;
+    private IQueryable<DummyEntity>? _source;
+    private ISearchEngine? _searchEngine;
+    private SearchEngineFilter? _filter;
 
     private static ISearchEngine CreateSearchEngine()
     {
@@ -58,15 +57,15 @@ public class SearchEngineBenchmark
     [Benchmark(Description = "SearchEngine_WithMaterialisation")]
     public void SearchEngine_WithMaterialisation()
     {
-        _ = _searchEngine.ExecuteEngine(_source, _filter)
+        _ = _searchEngine?.ExecuteEngine(_source!, _filter)
             .ToArray();
     }
     [Benchmark(Description = "EfCore_WithMaterialisation")]
     public void EfCore_WithMaterialisation()
     {
-        _ = _source.Where(x =>
+        _ = _source?.Where(x =>
                 x.Field1 == "1"
-                && x.Field2.StartsWith("2"))
+                && x.Field2 != null && x.Field2.StartsWith("2"))
             .ToArray();
     }
 }

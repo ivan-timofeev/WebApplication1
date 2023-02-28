@@ -9,4 +9,9 @@ public class SalePoint : DomainModel
 
     public ICollection<SaleItem> SaleItems { get; set; }
         = new List<SaleItem>();
+
+    public SalePoint()
+    {
+        Name = null!;
+    }
 }
