@@ -4,7 +4,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Abstraction.Services;
 
-public interface IShoppingCart
+public interface IShoppingCartsManagementService
 {
     ShoppingCartVm GetShoppingCart(Guid customerId);
     void StartNewShoppingSession(Guid customerId);
@@ -13,30 +13,37 @@ public interface IShoppingCart
     void ReleaseCart(Guid customerId);
 }
 
-public class ShoppingCart : DomainModel
+public class ShoppingCartsManagementService : IShoppingCartsManagementService
 {
-    public Guid CustomerId { get; set; }
-    public Customer Customer { get; set; }
-    public List<ShoppingCartItem> CartItems { get; set; }
-
-    public ShoppingCart()
+    public ShoppingCartVm GetShoppingCart(Guid customerId)
     {
-        Customer = null!;
-        CartItems = new List<ShoppingCartItem>();
+        throw new NotImplementedException();
+    }
+
+    public void StartNewShoppingSession(Guid customerId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void StartNewShoppingSession(Guid customerId, ShoppingCartVm model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateItem(Guid customerId, ShoppingCartItemUpdateVm model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ReleaseCart(Guid customerId)
+    {
+        throw new NotImplementedException();
     }
 }
 
-public class ShoppingCartItem : DomainModel
-{
-    public Guid SaleItemId { get; set; }
-    public SaleItem SaleItem { get; set; }
-    public int Quantity { get; set; }
 
-    public ShoppingCartItem()
-    {
-        SaleItem = null!;
-    }
-}
+
+
 
 public record ShoppingCartItemUpdateVm
 (
