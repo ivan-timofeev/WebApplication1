@@ -1,59 +1,70 @@
+using AutoMapper;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Services;
-using WebApplication1.Common.Exceptions;
-using WebApplication1.Data;
 using WebApplication1.Models;
-using WebApplication1.ViewModels.ShoppingCart;
+using WebApplication1.ViewModels;
 
 namespace WebApplication1.Services;
 
 public class ShoppingCartsManagementService : IShoppingCartsManagementService
 {
     private readonly IShoppingCartsRepository _shoppingCartsRepository;
+    private readonly IMapper _mapper;
 
     public ShoppingCartsManagementService(
-        IShoppingCartsRepository shoppingCartsRepository)
+        IShoppingCartsRepository shoppingCartsRepository,
+        IMapper mapper)
     {
         _shoppingCartsRepository = shoppingCartsRepository;
+        _mapper = mapper;
     }
 
-    public ShoppingCart GetShoppingCart(Guid id)
+    public ShoppingCartVm GetShoppingCart(Guid cartId)
     {
-        var shoppingCart = _shoppingCartsRepository.Read(id);
+        var shoppingCart = _shoppingCartsRepository.Read(cartId);
+        var viewModel = _mapper.Map<ShoppingCartVm>(shoppingCart);
 
-        return shoppingCart;
+        return viewModel;
     }
 
-    public void StartNewShoppingSession(Guid customerId)
+    public ShoppingCartVm GetShoppingCartByCustomer(Guid customerId)
     {
-        var shoppingCart = _dbContext.ShoppingCarts.FirstOrDefault(x => x.CustomerId == customerId);
+        throw new NotImplementedException();
+    }
 
-        if (shoppingCart != null)
+    public Guid CreateCart(Guid customerId)
+    {
+        var shoppingCart = new ShoppingCart
         {
-            shoppingCart.CartItems = new List<ShoppingCartItem>();
-        }
-        else
-        {
-            _dbContext.ShoppingCarts.Add(new ShoppingCart
-            {
-                CartItems = new List<ShoppingCartItem>(),
-                CustomerId = customerId
-            });
-        }
+            CustomerId = customerId
+        };
+        var createdShoppingCartId = _shoppingCartsRepository.Create(shoppingCart);
+
+        return createdShoppingCartId;
     }
 
-    public void StartNewShoppingSession(Guid customerId, ShoppingCartVm model)
+    public Guid CreateCart(Guid customerId, ShoppingCartVm model)
     {
+        var shoppingCart = _mapper.Map<ShoppingCart>(model);
+        _shoppingCartsRepository.Create(shoppingCart);
+        
         throw new NotImplementedException();
     }
 
-    public void UpdateItem(Guid customerId, ShoppingCartItemUpdateVm model)
+    public void UpdateCartItem(Guid customerId, ShoppingCartItemUpdateVm model)
     {
-        throw new NotImplementedException();
+        _shoppingCartsRepository.UpdateShoppingCartItem(
+            customerId, model.SaleItemId, model.Quantity);
     }
 
-    public void ReleaseCart(Guid customerId)
+    public void RefreshCart(Guid cartId)
     {
-        throw new NotImplementedException();
+        var shoppingCart = _shoppingCartsRepository.Read(cartId);
+        _shoppingCartsRepository.Update(cartId, shoppingCart);
+    }
+
+    public void DeleteCart(Guid cartId)
+    {
+        _shoppingCartsRepository.Delete(cartId);
     }
 }

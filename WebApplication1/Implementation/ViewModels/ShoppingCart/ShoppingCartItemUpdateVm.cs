@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.ViewModels.ShoppingCart;
+namespace WebApplication1.ViewModels;
 
 public record ShoppingCartItemUpdateVm
 (

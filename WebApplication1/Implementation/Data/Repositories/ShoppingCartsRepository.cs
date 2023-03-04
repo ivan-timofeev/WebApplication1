@@ -20,6 +20,13 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
 
     public Guid Create(ShoppingCart entity)
     {
+        var customer = _dbContext.Customers
+            .FirstOrDefault(x => x.Id == entity.CustomerId)
+            .ThrowIfNotFound(entity.CustomerId);
+
+        entity.CustomerId = customer.Id;
+        entity.Customer = customer;
+
         _dbContext.Add(entity);
         _dbContext.SaveChanges();
 
@@ -29,13 +36,8 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     public ShoppingCart Read(Guid id)
     {
         var shoppingCart = _dbContext.ShoppingCarts
-            .FirstOrDefault(x => x.Id == id);
-
-        if (shoppingCart is null)
-        {
-            throw new EntityNotFoundInTheDatabaseException(
-                nameof(ShoppingCart), id);
-        }
+            .FirstOrDefault(x => x.Id == id)
+            .ThrowIfNotFound(id);
 
         return shoppingCart;
     }
@@ -137,18 +139,12 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
 
     public void Delete(Guid entityId)
     {
-        var shoppingCart =  _dbContext.ShoppingCarts
-            .FirstOrDefault(x => x.Id == entityId);
-        
-        if (shoppingCart is null)
-        {
-            throw new EntityNotFoundInTheDatabaseException(
-                nameof(ShoppingCart), entityId);
-        }
-        
-        shoppingCart.IsDeleted = true;
-        shoppingCart.DeletedDateTimeUtc = DateTime.UtcNow;
-        
+        var shoppingCart = _dbContext.ShoppingCarts
+            .FirstOrDefault(x => x.Id == entityId)
+            .ThrowIfNotFound(entityId);
+
+        _dbContext.ShoppingCarts.Remove(shoppingCart);
+
         _dbContext.SaveChanges();
     }
 
