@@ -6,4 +6,5 @@ namespace WebApplication1.Abstraction.Data.Repositories;
 public interface IShoppingCartsRepository : ICrudRepository<ShoppingCart>
 {
     void UpdateShoppingCartItem(Guid customerId, Guid saleItemId, int quantity);
+    ShoppingCart ReadByCustomer(Guid customerId);
 }

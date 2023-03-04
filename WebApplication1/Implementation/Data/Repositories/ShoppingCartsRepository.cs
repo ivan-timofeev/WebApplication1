@@ -42,6 +42,15 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
         return shoppingCart;
     }
 
+    public ShoppingCart ReadByCustomer(Guid customerId)
+    {
+        var shoppingCart = _dbContext.ShoppingCarts
+            .FirstOrDefault(x => x.CustomerId == customerId)
+            .ThrowIfNotFound(customerId);
+
+        return shoppingCart;
+    }
+
     public void Update(Guid entityId, ShoppingCart newEntityState)
     {
         RemoveEmptyCartItems(newEntityState);

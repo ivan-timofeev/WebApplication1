@@ -29,7 +29,10 @@ public class ShoppingCartsManagementService : IShoppingCartsManagementService
 
     public ShoppingCartVm GetShoppingCartByCustomer(Guid customerId)
     {
-        throw new NotImplementedException();
+        var shoppingCart = _shoppingCartsRepository.ReadByCustomer(customerId);
+        var viewModel = _mapper.Map<ShoppingCartVm>(shoppingCart);
+
+        return viewModel;
     }
 
     public Guid CreateCart(Guid customerId)
