@@ -1,23 +1,30 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Abstraction.Services.SearchEngine;
 using WebApplication1.Data;
+using WebApplication1.Helpers.Extensions;
+using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
 using WebApplication1.Services.SearchEngine.Models;
+using WebApplication1.ViewModels;
 
 namespace WebApplication1.Services;
 
 public class FilesManagementService : IFilesManagementService
 {
     private readonly WebApplicationDbContext _dbContext;
+    private readonly IMapper _mapper;
     private readonly ISearchEngine _searchEngine;
 
     public FilesManagementService(
         WebApplicationDbContext dbContext,
+        IMapper mapper,
         ISearchEngine searchEngine)
     {
         _dbContext = dbContext;
+        _mapper = mapper;
         _searchEngine = searchEngine;
     }
 
@@ -53,27 +60,40 @@ public class FilesManagementService : IFilesManagementService
         return fileData.Id;
     }
 
-    public FileData GetFileData(Guid id)
+    public FileDataVm GetFileData(Guid fileDataId)
     {
-        return _dbContext.FilesData.First(x => x.Id == id);
+        var fileData = _dbContext.FilesData
+            .FirstOrDefault(x => x.Id == fileDataId)
+            .ThrowIfNotFound(fileDataId);
+
+        var fileDataVm = _mapper.Map<FileDataVm>(fileData);
+
+        return fileDataVm;
     }
 
-    public void DeleteFile(Guid id)
+    public void DeleteFile(Guid fileDataId)
     {
-        var fileData = _dbContext.FilesData.First(x => x.Id == id);
-        File.Delete(Path.Combine("files", fileData.FileName));
+        var fileData = _dbContext.FilesData
+            .FirstOrDefault(x => x.Id == fileDataId)
+            .ThrowIfNotFound(fileDataId);
+
+        if (File.Exists(Path.Combine("files", fileData.FileName)))
+            File.Delete(Path.Combine("files", fileData.FileName));
 
         _dbContext.FilesData.Remove(fileData);
         _dbContext.SaveChanges();
     }
 
-    public PagedModel<FileData> SearchWithPagination(SearchEngineFilter? filter, int page, int pageSize)
+    public PagedModel<FileDataVm> SearchWithPagination(SearchEngineFilter? filter, int page, int pageSize)
     {
         var source = _searchEngine
             .ExecuteEngine(_dbContext.FilesData, filter)
             .AsNoTracking();
 
-        return PagedModel<FileData>.Paginate(source, page, pageSize);
+        var pagedModel = PagedModel<FileData>.Paginate(source, page, pageSize);
+        var mappedPagedModel = pagedModel.MapTo<FileDataVm>();
+
+        return mappedPagedModel;
     }
 
     private bool IsTrustedExtension(string extension)
