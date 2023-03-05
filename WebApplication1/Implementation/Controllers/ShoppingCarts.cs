@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.ViewModels;
 
@@ -17,7 +18,10 @@ public class ShoppingCartsController : ControllerBase
     }
 
     [HttpPost("{customerId:guid}")]
-    public IActionResult CreateShoppingCart(Guid customerId, ShoppingCartVm? model = null)
+    public IActionResult CreateShoppingCart(
+        Guid customerId,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]
+        ShoppingCartVm? model = null)
     {
         var createdShoppingCartId = model is null
             ? _shoppingCartsManagementService.CreateCart(customerId)
@@ -25,7 +29,7 @@ public class ShoppingCartsController : ControllerBase
 
         return CreatedAtAction(
             nameof(Get),
-            routeValues: new { id = createdShoppingCartId },
+            routeValues: new { shoppingCartId = createdShoppingCartId },
             value: new { ShoppingCartId = createdShoppingCartId});
     }
 
