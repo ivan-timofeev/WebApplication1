@@ -12,8 +12,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(WebApplicationDbContext))]
-    [Migration("20230104223653_OrdersImplemented")]
-    partial class OrdersImplemented
+    [Migration("20230305153013_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,6 +53,23 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.FileData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUri")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FilesData");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Manufacturer", b =>
@@ -102,17 +119,12 @@ namespace WebApplication1.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("SalePointId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime?>("UpdatedDateTimeUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("SalePointId");
 
                     b.ToTable("Orders");
                 });
@@ -138,13 +150,10 @@ namespace WebApplication1.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("SalePointId")
+                    b.Property<Guid>("SaleItemId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedDateTimeUtc")
@@ -154,9 +163,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("SalePointId");
+                    b.HasIndex("SaleItemId");
 
                     b.ToTable("OrderItem");
                 });
@@ -270,7 +277,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("SalePointId");
 
-                    b.ToTable("SaleItem");
+                    b.ToTable("SaleItems");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.SalePoint", b =>
@@ -303,6 +310,76 @@ namespace WebApplication1.Migrations
                     b.ToTable("SalePoints");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ShoppingCart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("ShoppingCarts");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ShoppingCartItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SaleItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ShoppingCartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDateTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SaleItemId");
+
+                    b.HasIndex("ShoppingCartId");
+
+                    b.ToTable("ShoppingCartItem");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.NumberProductCharacteristic", b =>
                 {
                     b.HasBaseType("WebApplication1.Models.ProductCharacteristic");
@@ -330,12 +407,6 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.Customer", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApplication1.Models.SalePoint", "SalePoint")
-                        .WithMany()
-                        .HasForeignKey("SalePointId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -374,8 +445,6 @@ namespace WebApplication1.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("OrderStateHierarchical");
-
-                    b.Navigation("SalePoint");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.OrderItem", b =>
@@ -386,23 +455,15 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApplication1.Models.Product", "Product")
+                    b.HasOne("WebApplication1.Models.SaleItem", "SaleItem")
                         .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApplication1.Models.SalePoint", "SalePoint")
-                        .WithMany()
-                        .HasForeignKey("SalePointId")
+                        .HasForeignKey("SaleItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
 
-                    b.Navigation("Product");
-
-                    b.Navigation("SalePoint");
+                    b.Navigation("SaleItem");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.ProductCharacteristic", b =>
@@ -435,6 +496,32 @@ namespace WebApplication1.Migrations
                     b.Navigation("SalePoint");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ShoppingCart", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ShoppingCartItem", b =>
+                {
+                    b.HasOne("WebApplication1.Models.SaleItem", "SaleItem")
+                        .WithMany()
+                        .HasForeignKey("SaleItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.ShoppingCart", null)
+                        .WithMany("CartItems")
+                        .HasForeignKey("ShoppingCartId");
+
+                    b.Navigation("SaleItem");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Customer", b =>
                 {
                     b.Navigation("Orders");
@@ -453,6 +540,11 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.SalePoint", b =>
                 {
                     b.Navigation("SaleItems");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ShoppingCart", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,6 @@
+using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Services;
+using WebApplication1.Data.Repositories;
 using WebApplication1.Services;
 using WebApplication1.Services.SearchEngine.DI;
 
@@ -16,6 +18,7 @@ public static class AddAddServicesExtension
         services.AddScoped<IDatabaseTransactionsManagementService, DatabaseTransactionsManagementService>();
         services.AddTransient<IFilesManagementService, FilesManagementService>();
         services.AddTransient<IShoppingCartsManagementService, ShoppingCartsManagementService>();
+        services.AddTransient<ISaleItemsRepository, SaleItemsRepository>();
 
         return services;
     }
