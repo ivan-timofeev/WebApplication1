@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Abstraction.Services.SearchEngine;
+using WebApplication1.Common.Exceptions;
 using WebApplication1.Data;
 using WebApplication1.Helpers.Extensions;
 using WebApplication1.Implementation.Helpers.Extensions;
@@ -32,7 +33,16 @@ public class FilesManagementService : IFilesManagementService
     {
         var fileExtension = new FileInfo(file.FileName).Extension;
         if (!IsTrustedExtension(fileExtension))
-            throw new Exception("NOT TRUSTED FILE TYPE");
+        {
+            var errorVm = new ErrorVmBuilder()
+                .WithGlobalError("The type of the submitted file is not trusted.")
+                .WithInfo("ProvidedFileType", fileExtension)
+                .WithInfo("TrustedFileTypes", ".png .jpg .jpeg .gif")
+                .Build();
+
+            throw new BusinessErrorException("The type of the submitted file is not trusted.",
+                StatusCodes.Status400BadRequest, errorVm);
+        }
 
         var fileData = new FileData();
         _dbContext.FilesData.Add(fileData);

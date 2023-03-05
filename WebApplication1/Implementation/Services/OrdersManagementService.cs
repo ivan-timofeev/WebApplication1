@@ -3,6 +3,7 @@ using AutoMapper;
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
+using WebApplication1.Common.Exceptions;
 using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
 using WebApplication1.Services.SearchEngine.Models;
@@ -79,7 +80,16 @@ public class OrdersManagementService : IOrdersManagementService
 
                 if (saleItem.Quantity < cartItem.Quantity)
                 {
-                    throw new Exception("Нет столько товара");
+                    var errorVm = new ErrorVmBuilder()
+                        .WithGlobalError("There is not enough product in stock.")
+                        .WithInfo("SalePointId", saleItem.SalePointId)
+                        .WithInfo("SaleItemId", saleItem.Id)
+                        .WithInfo("RequiredQuantity", cartItem.Quantity)
+                        .WithInfo("AvailableQuantity", saleItem.Quantity)
+                        .Build();
+
+                    throw new BusinessErrorException("There is not enough product in stock.",
+                        StatusCodes.Status409Conflict, errorVm);
                 }
 
                 // Item reservation

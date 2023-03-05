@@ -48,6 +48,12 @@ public class ErrorVmBuilder
         AddInfo(key, message);
         return this;
     }
+
+    public ErrorVmBuilder WithInfo(string key, object message)
+    {
+        AddInfo(key, message.ToString());
+        return this;
+    }
     
     private void AddError(string key, string message, string? data = null)
     {
