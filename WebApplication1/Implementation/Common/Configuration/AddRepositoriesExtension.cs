@@ -13,6 +13,7 @@ public static class AddRepositoriesExtension
         services.AddTransient<ICustomersRepository, CustomersRepository>();
         services.AddTransient<IOrdersRepository, OrdersRepository>();
         services.AddTransient<ICustomerOrdersRepository, CustomerOrdersRepository>();
+        services.AddTransient<IShoppingCartsRepository, ShoppingCartsRepository>();
 
         return services;
     }

@@ -15,6 +15,7 @@ public static class AddAddServicesExtension
         services.AddTransient<IOrdersManagementService, OrdersManagementService>();
         services.AddScoped<IDatabaseTransactionsManagementService, DatabaseTransactionsManagementService>();
         services.AddTransient<IFilesManagementService, FilesManagementService>();
+        services.AddTransient<IShoppingCartsManagementService, ShoppingCartsManagementService>();
 
         return services;
     }

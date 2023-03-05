@@ -51,6 +51,9 @@ public static class AutomapperConfiguration
         cfg.CreateMap<SalePoint, CustomerOrderSalePointVm>();
         cfg.CreateMap<Order, CustomerOrderVm>();
         cfg.CreateMap<OrderItem, CustomerOrderItemVm>();
+
+        cfg.CreateMap<ShoppingCart, ShoppingCartVm>();
+        cfg.CreateMap<ShoppingCartItem, ShoppingCartItemVm>();
     }
 
     private static void ConfigureViewModelToModel(IMapperConfigurationExpression cfg)
