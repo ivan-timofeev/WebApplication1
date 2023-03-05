@@ -1,13 +1,17 @@
-using WebApplication1.Implementation.ViewModels.Order;
-using WebApplication1.Models;
+using WebApplication1.Abstraction.Models;
+using WebApplication1.ViewModels;
+using WebApplication1.ViewModels.SearchEngine;
 
 namespace WebApplication1.Abstraction.Services;
 
 public interface IOrdersManagementService
 {
-    Guid CreateOrder(OrderCreateVm model);
-    Order GetOrder(Guid orderId);
-    void UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model);
-    void UpdateOrderState(Guid orderId, UpdateOrderStateVm model);
+    /// <summary>
+    /// Creates an order from the shopping cart with items reservation.
+    /// </summary>
+    Guid CreateOrder(Guid customerId);
+    OrderVm GetOrder(Guid orderId);
+    void UpdateOrder(Guid orderId, UpdateOrderStateVm model);
     void DeleteOrder(Guid orderId);
+    PagedModel<OrderVm> SearchWithPagination(SearchEngineFilterVm? filter, int page, int pageSize);
 }

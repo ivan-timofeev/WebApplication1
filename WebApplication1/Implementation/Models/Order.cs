@@ -8,11 +8,7 @@ public class Order : DomainModel
     public Guid CustomerId { get; set; }
     public Customer Customer { get; set; }
 
-    public Guid SalePointId { get; set; }
-    public SalePoint SalePoint { get; set; }
-
     public ICollection<OrderItem> OrderedItems { get; set; }
-        = new List<OrderItem>();
 
     public OrderStateEnum ActualOrderState => GetActualOrderState();
 
@@ -28,7 +24,7 @@ public class Order : DomainModel
     public Order()
     {
         Customer = null!;
-        SalePoint = null!;
+        OrderedItems = new List<OrderItem>();
     }
 }
 

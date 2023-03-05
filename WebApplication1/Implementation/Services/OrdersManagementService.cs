@@ -1,43 +1,57 @@
 using System.Data;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using WebApplication1.Abstraction.Data.Repositories;
+using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services;
-using WebApplication1.Data;
-using WebApplication1.Implementation.ViewModels.Order;
+using WebApplication1.Implementation.Helpers.Extensions;
 using WebApplication1.Models;
+using WebApplication1.Services.SearchEngine.Models;
+using WebApplication1.ViewModels;
+using WebApplication1.ViewModels.SearchEngine;
 
 namespace WebApplication1.Services;
 
 public class OrdersManagementService : IOrdersManagementService
 {
+    private readonly IMapper _mapper;
     private readonly IOrdersRepository _ordersRepository;
     private readonly ICustomersRepository _customersRepository;
     private readonly ISalePointsRepository _salePointsRepository;
+    private readonly ISaleItemsRepository _saleItemsRepository;
+    private readonly IShoppingCartsManagementService _shoppingCartsManagementService;
     private readonly IDatabaseTransactionsManagementService _databaseTransactionsManagementService;
 
     public OrdersManagementService(
+        IMapper mapper,
         IOrdersRepository ordersRepository,
         ICustomersRepository customersRepository,
         ISalePointsRepository salePointsRepository,
+        ISaleItemsRepository saleItemsRepository,
+        IShoppingCartsManagementService shoppingCartsManagementService,
         IDatabaseTransactionsManagementService databaseTransactionsManagementService)
     {
+        _mapper = mapper;
         _ordersRepository = ordersRepository;
         _customersRepository = customersRepository;
         _salePointsRepository = salePointsRepository;
+        _saleItemsRepository = saleItemsRepository;
+        _shoppingCartsManagementService = shoppingCartsManagementService;
         _databaseTransactionsManagementService = databaseTransactionsManagementService;
     }
 
-
-    public Guid CreateOrder(OrderCreateVm model)
+    public Guid CreateOrder(Guid customerId)
     {
-        var customer = _customersRepository.Read(model.CustomerId);
-        var salePoint = _salePointsRepository.Read(model.SalePointId);
-
-        var orderId = _ordersRepository.Create(new Order
+        var shoppingCart = _shoppingCartsManagementService.GetShoppingCartByCustomer(customerId);
+        var customer = _customersRepository.Read(shoppingCart.CustomerId);
+        
+        var isTransactionCommitted = false;
+        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
+        
+        var order = new Order
         {
             OrderStateHierarchical = new List<OrderStateHierarchicalItem>()
             {
-                new OrderStateHierarchicalItem()
+                new ()
                 {
                     SerialNumber = 1,
                     EnteredDateTimeUtc = DateTime.UtcNow,
@@ -46,67 +60,48 @@ public class OrdersManagementService : IOrdersManagementService
                 }
             },
             CustomerId = customer.Id,
-            Customer = customer,
-            SalePointId = salePoint.Id,
-            SalePoint = salePoint
-        });
-
-        return orderId;
-    }
-
-    public Order GetOrder(Guid orderId)
-    {
-        return _ordersRepository.Read(orderId);
-    }
-
-    public void UpdateOrderPosition(Guid orderId, UpdateOrderPositionVm model)
-    {
-        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
-        var isTransactionCommitted = false;
+            Customer = customer
+        };
 
         try
         {
-            var order = _ordersRepository.Read(orderId);
+            var saleItemIds = shoppingCart.CartItems
+                .Select(x => x.SaleItemId)
+                .ToArray();
 
-            if (order.ActualOrderState != OrderStateEnum.Creating)
-                throw new Exception("Данный заказ уже был сформирован. Редактировать его элементы НЕЛЬЗЯ");
-            
-            var salePoint = _salePointsRepository.Read(order.SalePointId);
-            var saleItem = salePoint.SaleItems.FirstOrDefault(x => x.ProductId == model.ProductId);
+            var saleItems = _saleItemsRepository
+                .Read(saleItemIds)
+                .ToArray();
 
-            // TODO: create new exceptions
-            if (saleItem is null)
-                throw new Exception("В торговой точке нет такого товара.");
-            if (model.Quantity > saleItem.Quantity)
-                throw new Exception("В торговой точке нет столько товара.");
-
-            var orderItem = order.OrderedItems.FirstOrDefault(x => x.ProductId == model.ProductId);
-
-            if (orderItem != null)
+            foreach (var cartItem in shoppingCart.CartItems)
             {
-                saleItem.Quantity += orderItem.Quantity;
-                order.OrderedItems.Remove(orderItem);
-            }
+                var saleItem = saleItems.First(x => x.Id == cartItem.SaleItemId);
 
-            if (model.Quantity != 0)
-            {
-                var updatedOrderItem = new OrderItem
+                if (saleItem.Quantity < cartItem.Quantity)
                 {
-                    OrderId = order.Id,
-                    ProductId = saleItem.ProductId,
-                    SalePointId = salePoint.Id,
-                    Price = saleItem.SellingPrice,
-                    Quantity = model.Quantity
+                    throw new Exception("Нет столько товара");
+                }
+
+                // Item reservation
+                saleItem.Quantity -= cartItem.Quantity;
+                _saleItemsRepository.Update(saleItem.Id, saleItem);
+
+                var orderItem = new OrderItem
+                {
+                    Quantity = cartItem.Quantity,
+                    SaleItemId = cartItem.SaleItemId,
+                    Price = saleItem.SellingPrice
                 };
-                saleItem.Quantity -= updatedOrderItem.Quantity;
-                order.OrderedItems.Add(updatedOrderItem);
+                order.OrderedItems.Add(orderItem);
             }
 
-            _salePointsRepository.Update(salePoint.Id, salePoint);
-            _ordersRepository.Update(order.Id, order);
-            
+            AddOrderState(order, OrderStateEnum.AwaitingPayment, "Заказ зарезервирован");
+            var createdOrderId = _ordersRepository.Create(order);
+
             _databaseTransactionsManagementService.CommitTransaction();
             isTransactionCommitted = true;
+
+            return createdOrderId;
         }
         finally
         {
@@ -117,62 +112,43 @@ public class OrdersManagementService : IOrdersManagementService
         }
     }
 
-    public void UpdateOrderState(Guid orderId, UpdateOrderStateVm model)
+    public OrderVm GetOrder(Guid orderId)
     {
-        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
-        var isTransactionCommitted = false;
-        
-        try
-        {
-            var order = _ordersRepository.Read(orderId);
-            var previousStateSerialNumber = order.OrderStateHierarchical.Max(x => x.SerialNumber);
+        var order = _ordersRepository.Read(orderId);
+        var orderVm = _mapper.Map<OrderVm>(order);
 
-            order.OrderStateHierarchical.Add(new OrderStateHierarchicalItem
-            {
-                SerialNumber = previousStateSerialNumber + 1,
-                EnteredDateTimeUtc = DateTime.UtcNow,
-                State = model.NewOrderState,
-                EnterDescription = model.EnterDescription,
-                Details = model.Details
-            });
-            
-            if (model.NewOrderState == OrderStateEnum.Canceled && ItIsTheFirstCancellation(order))
-                RemoveProductsReservation(order);
+        return orderVm;
+    }
 
-            _ordersRepository.Update(order.Id, order);
-            
-            _databaseTransactionsManagementService.CommitTransaction();
-            isTransactionCommitted = true;
-        }
-        finally
-        {
-            if (!isTransactionCommitted)
-            {
-                _databaseTransactionsManagementService.RollbackTransaction();
-            }
-        }
+    public void UpdateOrder(Guid orderId, UpdateOrderStateVm model)
+    {
+        throw new NotImplementedException();
     }
 
     public void DeleteOrder(Guid orderId)
     {
         _ordersRepository.Delete(orderId);
     }
-    
-    private static bool ItIsTheFirstCancellation(Order order)
+
+    public PagedModel<OrderVm> SearchWithPagination(SearchEngineFilterVm? filterVm, int page, int pageSize)
     {
-        return order.OrderStateHierarchical
-                   .FirstOrDefault(x => x.State == OrderStateEnum.Canceled)
-               is null;
+        var filter = _mapper.Map<SearchEngineFilter>(filterVm);
+        var pagedModel = _ordersRepository.SearchWithPagination(filter, page, pageSize);
+        var mappedPagedModel = pagedModel.MapTo<OrderVm>();
+
+        return mappedPagedModel;
     }
-    
-    private void RemoveProductsReservation(Order order)
+
+    private void AddOrderState(Order order, OrderStateEnum newState, string enterDescription)
     {
-        var salePoint = _salePointsRepository.Read(order.SalePointId);
+        var previousStateSerialNumber = order.OrderStateHierarchical.Max(x => x.SerialNumber);
         
-        foreach (var orderItem in order.OrderedItems)
+        order.OrderStateHierarchical.Add(new OrderStateHierarchicalItem
         {
-            var saleItem = salePoint.SaleItems.First(x => x.ProductId == orderItem.ProductId);
-            saleItem.Quantity += orderItem.Quantity;
-        }
+            SerialNumber = previousStateSerialNumber + 1,
+            State = newState,
+            EnterDescription = enterDescription,
+            EnteredDateTimeUtc = DateTime.UtcNow
+        });
     }
 }

@@ -7,11 +7,8 @@ public class OrderItem : DomainModel
     public Guid OrderId { get; set; }
     public Order Order { get; set; }
 
-    public Guid ProductId { get; set; }
-    public Product Product { get; set; }
-
-    public Guid SalePointId { get; set; }
-    public SalePoint SalePoint { get; set; }
+    public Guid SaleItemId { get; set; }
+    public SaleItem SaleItem { get; set; }
 
     public int Quantity { get; set; }
     public decimal Price { get; set; }
@@ -19,7 +16,6 @@ public class OrderItem : DomainModel
     public OrderItem()
     {
         Order = null!;
-        Product = null!;
-        SalePoint = null!;
+        SaleItem = null!;
     }
 }

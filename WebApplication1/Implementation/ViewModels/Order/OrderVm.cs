@@ -1,18 +1,32 @@
-using System.ComponentModel.DataAnnotations;
 using WebApplication1.Models;
-using WebApplication1.ViewModels;
 using WebApplication1.ViewModels.Customer;
 
-namespace WebApplication1.Implementation.ViewModels.Order;
+namespace WebApplication1.ViewModels;
 
-public record OrderVm(
+public record OrderVm
+(
     Guid Id,
     CustomerVm Customer,
-    SalePointVm SalePoint,
     OrderStateEnum ActualOrderState,
-    IEnumerable<OrderStateHierarchicalItemVm> OrderStateHierarchical);
+    IEnumerable<OrderItemVm> OrderedItems,
+    IEnumerable<OrderStateHierarchicalItemVm> OrderStateHierarchical
+);
 
-public record OrderStateHierarchicalItemVm(
+public record OrderItemVm
+(
+    OrderItemSaleItemVm SaleItem,
+    int Quantity,
+    decimal Price
+);
+
+public record OrderItemSaleItemVm
+(
+    ProductVm Product,
+    SalePointVm SalePoint
+);
+
+public record OrderStateHierarchicalItemVm
+(
     int SerialNumber,
     DateTime EnteredDateTimeUtc,
     OrderStateEnum State,

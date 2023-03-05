@@ -3,6 +3,7 @@ using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Models;
 using WebApplication1.Abstraction.Services.SearchEngine;
 using WebApplication1.Common.Exceptions;
+using WebApplication1.Helpers.Extensions;
 using WebApplication1.Models;
 using WebApplication1.Services.SearchEngine.Models;
 
@@ -49,42 +50,25 @@ public class OrdersRepository : IOrdersRepository
         return order;
     }
 
-    public void Update(Guid entityId, Order newEntityState)
+    public void Update(Guid orderId, Order newEntityState)
     {
         var order = GetOrdersSource()
-            .FirstOrDefault(x => x.Id == entityId);
-        
-        if (order is null)
-        {
-            throw new EntityNotFoundInTheDatabaseException(
-                nameof(Order), entityId);
-        }
+            .FirstOrDefault(x => x.Id == orderId)
+            .ThrowIfNotFound(orderId);
 
-        order.CustomerId = newEntityState.CustomerId;
-        order.Customer = _customersRepository.Read(newEntityState.CustomerId);
-        order.SalePointId = newEntityState.SalePointId;
-        order.SalePoint = _salePointsRepository.Read(newEntityState.SalePointId);
-
-        var orderProductIds = newEntityState.OrderedItems.Select(x => x.ProductId).ToArray();
-
-        _salePointsRepository.EnsureSalePointContainsTheseProducts(
-            newEntityState.SalePointId, 
-            orderProductIds);
-
-        order.OrderedItems = newEntityState.OrderedItems;
         order.OrderStateHierarchical = newEntityState.OrderStateHierarchical;
 
         _dbContext.SaveChanges();
     }
 
-    public void Delete(Guid entityId)
+    public void Delete(Guid orderId)
     {
-        var order = GetOrdersSource().FirstOrDefault(x => x.Id == entityId);
+        var order = GetOrdersSource().FirstOrDefault(x => x.Id == orderId);
         
         if (order is null)
         {
             throw new EntityNotFoundInTheDatabaseException(
-                nameof(Order), entityId);
+                nameof(Order), orderId);
         }
         
         order.IsDeleted = true;
@@ -150,9 +134,8 @@ public class OrdersRepository : IOrdersRepository
     {
         return _dbContext.Orders
             .Include(x => x.Customer)
-            .Include(x => x.SalePoint)
             .Include(x => x.OrderStateHierarchical)
             .Include(x => x.OrderedItems)
-            .ThenInclude(x => x.Product);
+            .ThenInclude(x => x.SaleItem);
     }
 }

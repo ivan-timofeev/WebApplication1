@@ -1,6 +1,5 @@
 using AutoMapper;
 using WebApplication1.Abstraction.Services.SearchEngine;
-using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
 using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
@@ -47,6 +46,8 @@ public static class AutomapperConfiguration
 
         cfg.CreateMap<Order, OrderVm>();
         cfg.CreateMap<OrderStateHierarchicalItem, OrderStateHierarchicalItemVm>();
+        cfg.CreateMap<OrderItem, OrderItemVm>();
+        cfg.CreateMap<SaleItem, OrderItemSaleItemVm>();
 
         cfg.CreateMap<SalePoint, CustomerOrderSalePointVm>();
         cfg.CreateMap<Order, CustomerOrderVm>();

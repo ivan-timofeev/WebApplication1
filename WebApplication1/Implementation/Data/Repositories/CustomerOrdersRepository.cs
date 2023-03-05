@@ -18,8 +18,8 @@ public class CustomerOrdersRepository : ICustomerOrdersRepository
     {
         return _dbContext.Orders
             .Include(x => x.OrderedItems)
+            .ThenInclude(x => x.SaleItem)
             .ThenInclude(x => x.Product)
-            .Include(x => x.SalePoint)
             .Where(x => x.CustomerId == customer.Id)
             .ToArray();
     }

@@ -1,7 +1,7 @@
 using WebApplication1.Abstraction.Services;
 using WebApplication1.Data;
-using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
+using WebApplication1.ViewModels;
 
 namespace WebApplication1.Implementation.BackgroundTasks;
 
@@ -9,7 +9,7 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
 {
     private readonly ILogger<CheckExpiredOrdersBackgroundTask> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private Timer _timer;
+    private Timer? _timer;
  
     public CheckExpiredOrdersBackgroundTask(
         ILogger<CheckExpiredOrdersBackgroundTask> logger,
@@ -76,7 +76,7 @@ public class CheckExpiredOrdersBackgroundTask : IHostedService, IDisposable
                 EnterDescription: "Заказ отменен системой",
                 Details: "Время резервации вышло");
             
-            ordersManagementService.UpdateOrderState(expiredOrderId, updateOrderStateVm);
+            ordersManagementService.UpdateOrder(expiredOrderId, updateOrderStateVm);
             
             _logger.LogInformation("Резервация отменена: {expiredOrderId}", expiredOrderId);
         }

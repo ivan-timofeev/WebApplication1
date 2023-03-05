@@ -1,8 +1,6 @@
-using AutoBogus;
 using AutoMapper;
 using DeepEqual.Syntax;
 using WebApplication1.Implementation.Helpers;
-using WebApplication1.Implementation.ViewModels.Order;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
 
@@ -75,13 +73,18 @@ public class OrderMappingTests
             {
                 new OrderItem()
                 {
-                    SalePoint = salePoint,
-                    Product = product,
-                    Quantity = 1
+                    SaleItem = new SaleItem()
+                    {
+                        SalePoint = salePoint,
+                        Product = product,
+                        SellingPrice = 80000
+                    },
+                    Quantity = 1,
+                    Price = 80000
                 }
-            },
-            SalePoint = salePoint
+            }
         };
+
 
         // Act
         var mapped = mapper.Map<OrderVm>(order);
