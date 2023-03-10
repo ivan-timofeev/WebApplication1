@@ -26,19 +26,19 @@ public class ProductsController : ControllerBase
         _productsRepository = productsRepository;
         _mapper = mapper;
     }
-    
+
     [HttpPost]
     public IActionResult Post(ProductCreateVm model)
     {
         var product = _mapper.Map<Product>(model);
         var createdProductId = _productsRepository.Create(product);
-        
+
         return CreatedAtAction(
             nameof(Get),
             routeValues: new { id = createdProductId },
             value: new { ProductId = createdProductId });
     }
-    
+
     [HttpGet("{id:guid}")]
     public IActionResult Get(Guid id)
     {
@@ -47,7 +47,7 @@ public class ProductsController : ControllerBase
 
         return Ok(_mapper.Map<ProductVm>(result));
     }
-    
+
     [HttpPut("{id:guid}")]
     public IActionResult Put(Guid id, ProductUpdateVm model)
     {
@@ -56,7 +56,7 @@ public class ProductsController : ControllerBase
         
         return Accepted();
     }
-    
+
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
