@@ -47,8 +47,7 @@ public static class AutomapperConfiguration
         cfg.CreateMap<Order, OrderVm>();
         cfg.CreateMap<OrderStateHierarchicalItem, OrderStateHierarchicalItemVm>();
         cfg.CreateMap<OrderItem, OrderItemVm>();
-        cfg.CreateMap<SaleItem, OrderItemSaleItemVm>()
-            .ForMember(x => x.SalePoint.SaleItems, t => t.Ignore());
+        cfg.CreateMap<SaleItem, OrderItemSaleItemVm>();
 
         cfg.CreateMap<SalePoint, CustomerOrderSalePointVm>();
         cfg.CreateMap<Order, CustomerOrderVm>();
