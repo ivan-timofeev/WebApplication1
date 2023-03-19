@@ -30,7 +30,7 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public IActionResult Post(Guid customerId)
     {
-        var createdOrderId = _ordersManagementService.CreateOrder(customerId);
+        var createdOrderId = _ordersManagementService.CreateOrderFromCustomerShoppingCart(customerId);
         
         return CreatedAtAction(
             nameof(Get),

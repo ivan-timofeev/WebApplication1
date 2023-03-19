@@ -40,7 +40,7 @@ public class OrdersManagementService : IOrdersManagementService
         _databaseTransactionsManagementService = databaseTransactionsManagementService;
     }
 
-    public Guid CreateOrder(Guid customerId)
+    public Guid CreateOrderFromCustomerShoppingCart(Guid customerId)
     {
         var shoppingCart = _shoppingCartsManagementService.GetShoppingCartByCustomer(customerId);
         var customer = _customersRepository.Read(shoppingCart.CustomerId);

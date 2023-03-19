@@ -9,7 +9,7 @@ public interface IOrdersManagementService
     /// <summary>
     /// Creates an order from the shopping cart with items reservation.
     /// </summary>
-    Guid CreateOrder(Guid customerId);
+    Guid CreateOrderFromCustomerShoppingCart(Guid customerId);
     OrderVm GetOrder(Guid orderId);
     void UpdateOrder(Guid orderId, UpdateOrderStateVm model);
     void DeleteOrder(Guid orderId);
