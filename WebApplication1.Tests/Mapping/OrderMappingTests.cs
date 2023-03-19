@@ -58,14 +58,14 @@ public class OrderMappingTests
                 {
                     SerialNumber = 1,
                     EnteredDateTimeUtc = DateTime.UtcNow,
-                    State = OrderStateEnum.Creating,
+                    State = OrderStateEnum.Created,
                     Details = "Пользователь начал выбор продуктов"
                 },
                 new OrderStateHierarchicalItem()
                 {
                     SerialNumber = 2,
                     EnteredDateTimeUtc = DateTime.UtcNow,
-                    State = OrderStateEnum.AwaitingAssembling,
+                    State = OrderStateEnum.Assembling,
                     Details = "Заказ сформирован и зарезервирован. Ожидание сборщика."
                 }
             },

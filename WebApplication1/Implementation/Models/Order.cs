@@ -41,10 +41,10 @@ public class OrderStateHierarchicalItem
 
 public enum OrderStateEnum
 {
-    Creating,
-    AwaitingAssembling,
-    Assembling,
+    Created,
     AwaitingPayment,
+    Assembling,
+    AwaitingCustomerPickup,
     AwaitingForDelivery,
     DeliveryInProgress,
     Completed,

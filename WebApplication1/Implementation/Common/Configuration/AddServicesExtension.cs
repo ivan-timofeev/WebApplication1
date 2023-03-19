@@ -1,5 +1,6 @@
 using WebApplication1.Abstraction.Data.Repositories;
 using WebApplication1.Abstraction.Services;
+using WebApplication1.Common.Exceptions;
 using WebApplication1.Data.Repositories;
 using WebApplication1.Services;
 using WebApplication1.Services.SearchEngine.DI;
@@ -14,7 +15,7 @@ public static class AddAddServicesExtension
         services.AddConfiguredAutoMapper();
         services.AddSearchEngine();
 
-        services.AddTransient<IOrdersManagementService, OrdersManagementService>();
+        services.AddOrdersManagementService();
         services.AddScoped<IDatabaseTransactionsManagementService, DatabaseTransactionsManagementService>();
         services.AddTransient<IFilesManagementService, FilesManagementService>();
         services.AddTransient<IShoppingCartsManagementService, ShoppingCartsManagementService>();

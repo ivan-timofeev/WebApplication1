@@ -20,6 +20,7 @@ public class OrdersManagementService : IOrdersManagementService
     private readonly ISalePointsRepository _salePointsRepository;
     private readonly ISaleItemsRepository _saleItemsRepository;
     private readonly IShoppingCartsManagementService _shoppingCartsManagementService;
+    private readonly IUpdateOrderStateStrategyResolver _updateOrderStateStrategyResolver;
     private readonly IDatabaseTransactionsManagementService _databaseTransactionsManagementService;
 
     public OrdersManagementService(
@@ -29,6 +30,7 @@ public class OrdersManagementService : IOrdersManagementService
         ISalePointsRepository salePointsRepository,
         ISaleItemsRepository saleItemsRepository,
         IShoppingCartsManagementService shoppingCartsManagementService,
+        IUpdateOrderStateStrategyResolver updateOrderStateStrategyResolver,
         IDatabaseTransactionsManagementService databaseTransactionsManagementService)
     {
         _mapper = mapper;
@@ -37,6 +39,7 @@ public class OrdersManagementService : IOrdersManagementService
         _salePointsRepository = salePointsRepository;
         _saleItemsRepository = saleItemsRepository;
         _shoppingCartsManagementService = shoppingCartsManagementService;
+        _updateOrderStateStrategyResolver = updateOrderStateStrategyResolver;
         _databaseTransactionsManagementService = databaseTransactionsManagementService;
     }
 
@@ -56,7 +59,7 @@ public class OrdersManagementService : IOrdersManagementService
                 {
                     SerialNumber = 1,
                     EnteredDateTimeUtc = DateTime.UtcNow,
-                    State = OrderStateEnum.Creating,
+                    State = OrderStateEnum.Created,
                     EnterDescription = "Заказ создан"
                 }
             },
@@ -105,7 +108,7 @@ public class OrdersManagementService : IOrdersManagementService
                 order.OrderedItems.Add(orderItem);
             }
 
-            AddOrderState(order, OrderStateEnum.AwaitingPayment, "Заказ зарезервирован");
+            OrderStateUtils.AddOrderState(order, OrderStateEnum.AwaitingPayment, "Заказ зарезервирован");
             var createdOrderId = _ordersRepository.Create(order);
 
             _databaseTransactionsManagementService.CommitTransaction();
@@ -132,7 +135,11 @@ public class OrdersManagementService : IOrdersManagementService
 
     public void UpdateOrder(Guid orderId, UpdateOrderStateVm model)
     {
-        throw new NotImplementedException();
+        var order = _ordersRepository.Read(orderId);
+
+        var updateStrategy = _updateOrderStateStrategyResolver
+            .ResolveStrategy(order.ActualOrderState, model.NewOrderState);
+        updateStrategy.UpdateOrder(order);
     }
 
     public void DeleteOrder(Guid orderId)
@@ -148,11 +155,14 @@ public class OrdersManagementService : IOrdersManagementService
 
         return mappedPagedModel;
     }
+}
 
-    private void AddOrderState(Order order, OrderStateEnum newState, string enterDescription)
+public static class OrderStateUtils
+{
+    public static void AddOrderState(Order order, OrderStateEnum newState, string enterDescription)
     {
         var previousStateSerialNumber = order.OrderStateHierarchical.Max(x => x.SerialNumber);
-        
+
         order.OrderStateHierarchical.Add(new OrderStateHierarchicalItem
         {
             SerialNumber = previousStateSerialNumber + 1,
