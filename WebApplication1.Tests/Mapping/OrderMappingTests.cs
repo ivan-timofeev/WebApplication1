@@ -1,6 +1,6 @@
 using AutoMapper;
 using DeepEqual.Syntax;
-using WebApplication1.Implementation.Helpers;
+using WebApplication1.Common.Configuration;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
 

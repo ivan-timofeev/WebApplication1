@@ -2,8 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using WebApplication1.BackgroundTasks;
+using WebApplication1.Common.Configuration;
 using WebApplication1.Common.Middlewares;
-using WebApplication1.Implementation.Helpers.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

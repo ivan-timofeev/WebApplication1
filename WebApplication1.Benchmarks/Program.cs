@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Microsoft.Extensions.DependencyInjection;
-using WebApplication1.Abstraction.Services.SearchEngine;
+using WebApplication1.Abstractions.Services.SearchEngine;
 using WebApplication1.Services.SearchEngine;
 using WebApplication1.Services.SearchEngine.DI;
 using WebApplication1.Services.SearchEngine.Models;
