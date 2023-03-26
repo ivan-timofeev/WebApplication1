@@ -8,7 +8,7 @@ public static class AddOrdersManagementServiceExtension
     public static IServiceCollection AddOrdersManagementService(this IServiceCollection services)
     {
         services
-            .AddUpdateOrderStateStrategies()
+            //.AddUpdateOrderStateStrategies()
             .AddTransient<IUpdateOrderStateStrategyResolver, UpdateOrderStateStrategyResolver>()
             .AddTransient<IOrdersManagementService, OrdersManagementService>();
 
