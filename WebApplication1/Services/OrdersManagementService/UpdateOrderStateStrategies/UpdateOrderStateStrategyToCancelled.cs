@@ -35,7 +35,7 @@ class UpdateOrderStateStrategyToCancelled
     {
         // Remove products reservation
 
-        ExecuteInTransaction(IsolationLevel.Serializable, action: () =>
+        _databaseTransactionsManagementService.ExecuteInTransaction(IsolationLevel.Serializable, action: () =>
         {
             var saleItemIds = order.OrderedItems
                 .Select(x => x.SaleItemId)
@@ -55,26 +55,5 @@ class UpdateOrderStateStrategyToCancelled
             OrderStateUtils.AddOrderState(order, OrderStateEnum.Canceled, 
                 enterDescription: "Items unreserved. Order cancelled.");
         });
-    }
-
-    private void ExecuteInTransaction(IsolationLevel isolationLevel, Action action)
-    {
-        var isTransactionCommitted = false;
-        _databaseTransactionsManagementService.BeginTransaction(isolationLevel);
-
-        try
-        {
-            action();
-
-            _databaseTransactionsManagementService.CommitTransaction();
-            isTransactionCommitted = true;
-        }
-        finally
-        {
-            if (!isTransactionCommitted)
-            {
-                _databaseTransactionsManagementService.RollbackTransaction();
-            }
-        }
     }
 }
