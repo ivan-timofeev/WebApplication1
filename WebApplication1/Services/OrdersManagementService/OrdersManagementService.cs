@@ -14,6 +14,8 @@ namespace WebApplication1.Services.OrdersManagementService;
 
 public class OrdersManagementService : IOrdersManagementService
 {
+    #region Private Fields
+
     private readonly IMapper _mapper;
     private readonly IOrdersRepository _ordersRepository;
     private readonly ICustomersRepository _customersRepository;
@@ -22,6 +24,10 @@ public class OrdersManagementService : IOrdersManagementService
     private readonly IShoppingCartsManagementService _shoppingCartsManagementService;
     private readonly IUpdateOrderStateStrategyResolver _updateOrderStateStrategyResolver;
     private readonly IDatabaseTransactionsManagementService _databaseTransactionsManagementService;
+
+    #endregion
+
+    #region CTOR
 
     public OrdersManagementService(
         IMapper mapper,
@@ -43,15 +49,75 @@ public class OrdersManagementService : IOrdersManagementService
         _databaseTransactionsManagementService = databaseTransactionsManagementService;
     }
 
+    #endregion
+
+
+    #region CreateOrderFromCustomerShoppingCart
+
     public Guid CreateOrderFromCustomerShoppingCart(Guid customerId)
     {
         var shoppingCart = _shoppingCartsManagementService.GetShoppingCartByCustomer(customerId);
         var customer = _customersRepository.Read(shoppingCart.CustomerId);
-        
-        var isTransactionCommitted = false;
-        _databaseTransactionsManagementService.BeginTransaction(IsolationLevel.Serializable);
-        
-        var order = new Order
+
+        var createdOrderId = Guid.Empty;
+
+        _databaseTransactionsManagementService.ExecuteInTransaction(IsolationLevel.Serializable, () =>
+        {
+            var order = CreateOrder(customer);
+
+            var saleItemIds = shoppingCart.CartItems
+                .Select(x => x.SaleItemId)
+                .ToArray();
+            var saleItems = _saleItemsRepository
+                .Read(saleItemIds)
+                .ToArray();
+
+            ReserveItems(order, shoppingCart, saleItems);
+            createdOrderId = _ordersRepository.Create(order);
+        });
+
+        return createdOrderId;
+    }
+
+    private void ReserveItems(Order order, ShoppingCartVm shoppingCart, SaleItem[] saleItems)
+    {
+        foreach (var cartItem in shoppingCart.CartItems)
+        {
+            var saleItem = saleItems.First(x => x.Id == cartItem.SaleItemId);
+
+            if (saleItem.Quantity < cartItem.Quantity)
+            {
+                var errorVm = new ErrorVmBuilder()
+                    .WithGlobalError("There is not enough product in stock.")
+                    .WithInfo("SalePointId", saleItem.SalePointId)
+                    .WithInfo("SaleItemId", saleItem.Id)
+                    .WithInfo("RequiredQuantity", cartItem.Quantity)
+                    .WithInfo("AvailableQuantity", saleItem.Quantity)
+                    .Build();
+
+                throw new BusinessErrorException("There is not enough product in stock.",
+                    StatusCodes.Status409Conflict, errorVm);
+            }
+
+            saleItem.Quantity -= cartItem.Quantity;
+            _saleItemsRepository.Update(saleItem.Id, saleItem);
+
+            var orderItem = new OrderItem
+            {
+                Quantity = cartItem.Quantity,
+                SaleItemId = cartItem.SaleItemId,
+                Price = saleItem.SellingPrice
+            };
+            order.OrderedItems.Add(orderItem);
+        }
+
+        OrderStateUtils.AddOrderState(order, OrderStateEnum.AwaitingPayment,
+            enterDescription: "Order successfully reserved.");
+    }
+
+    private Order CreateOrder(Customer customer)
+    {
+        return new Order
         {
             OrderStateHierarchical = new List<OrderStateHierarchicalItem>()
             {
@@ -60,70 +126,17 @@ public class OrdersManagementService : IOrdersManagementService
                     SerialNumber = 1,
                     EnteredDateTimeUtc = DateTime.UtcNow,
                     State = OrderStateEnum.Created,
-                    EnterDescription = "Заказ создан"
+                    EnterDescription = "Order created."
                 }
             },
             CustomerId = customer.Id,
             Customer = customer
         };
-
-        try
-        {
-            var saleItemIds = shoppingCart.CartItems
-                .Select(x => x.SaleItemId)
-                .ToArray();
-
-            var saleItems = _saleItemsRepository
-                .Read(saleItemIds)
-                .ToArray();
-
-            foreach (var cartItem in shoppingCart.CartItems)
-            {
-                var saleItem = saleItems.First(x => x.Id == cartItem.SaleItemId);
-
-                if (saleItem.Quantity < cartItem.Quantity)
-                {
-                    var errorVm = new ErrorVmBuilder()
-                        .WithGlobalError("There is not enough product in stock.")
-                        .WithInfo("SalePointId", saleItem.SalePointId)
-                        .WithInfo("SaleItemId", saleItem.Id)
-                        .WithInfo("RequiredQuantity", cartItem.Quantity)
-                        .WithInfo("AvailableQuantity", saleItem.Quantity)
-                        .Build();
-
-                    throw new BusinessErrorException("There is not enough product in stock.",
-                        StatusCodes.Status409Conflict, errorVm);
-                }
-
-                // Item reservation
-                saleItem.Quantity -= cartItem.Quantity;
-                _saleItemsRepository.Update(saleItem.Id, saleItem);
-
-                var orderItem = new OrderItem
-                {
-                    Quantity = cartItem.Quantity,
-                    SaleItemId = cartItem.SaleItemId,
-                    Price = saleItem.SellingPrice
-                };
-                order.OrderedItems.Add(orderItem);
-            }
-
-            OrderStateUtils.AddOrderState(order, OrderStateEnum.AwaitingPayment, "Заказ зарезервирован");
-            var createdOrderId = _ordersRepository.Create(order);
-
-            _databaseTransactionsManagementService.CommitTransaction();
-            isTransactionCommitted = true;
-
-            return createdOrderId;
-        }
-        finally
-        {
-            if (!isTransactionCommitted)
-            {
-                _databaseTransactionsManagementService.RollbackTransaction();
-            }
-        }
     }
+
+    #endregion
+
+    #region GetOrder
 
     public OrderVm GetOrder(Guid orderId)
     {
@@ -133,19 +146,31 @@ public class OrdersManagementService : IOrdersManagementService
         return orderVm;
     }
 
+    #endregion
+
+    #region UpdateOrder
+
     public void UpdateOrder(Guid orderId, UpdateOrderStateVm model)
     {
         var order = _ordersRepository.Read(orderId);
-
-        var updateStrategy = _updateOrderStateStrategyResolver
-            .ResolveStrategy(order.ActualOrderState, model.NewOrderState);
-        updateStrategy.UpdateOrder(order);
+        _updateOrderStateStrategyResolver
+            .ResolveStrategy(order.ActualOrderState, model.NewOrderState)
+            .UpdateOrder(order);
+        _ordersRepository.Update(order.Id, order);
     }
+
+    #endregion
+
+    #region DeleteOrder
 
     public void DeleteOrder(Guid orderId)
     {
         _ordersRepository.Delete(orderId);
     }
+
+    #endregion
+
+    #region SearchOrder
 
     public PagedModel<OrderVm> SearchWithPagination(SearchEngineFilterVm? filterVm, int page, int pageSize)
     {
@@ -155,7 +180,10 @@ public class OrdersManagementService : IOrdersManagementService
 
         return mappedPagedModel;
     }
+
+    #endregion
 }
+
 
 public static class OrderStateUtils
 {

@@ -27,4 +27,25 @@ public class DatabaseTransactionsManagementService : IDatabaseTransactionsManage
     {
         _dbContext.Database.RollbackTransaction();
     }
+
+    public void ExecuteInTransaction(IsolationLevel isolationLevel, Action action)
+    {
+        var isTransactionCommitted = false;
+        BeginTransaction(isolationLevel);
+
+        try
+        {
+            action();
+
+            CommitTransaction();
+            isTransactionCommitted = true;
+        }
+        finally
+        {
+            if (!isTransactionCommitted)
+            {
+                RollbackTransaction();
+            }
+        }
+    }
 }

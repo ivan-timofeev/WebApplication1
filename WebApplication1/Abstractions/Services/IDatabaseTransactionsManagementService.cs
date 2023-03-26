@@ -7,4 +7,5 @@ public interface IDatabaseTransactionsManagementService
     void BeginTransaction(IsolationLevel isolationLevel);
     void CommitTransaction();
     void RollbackTransaction();
+    void ExecuteInTransaction(IsolationLevel isolationLevel, Action action);
 }
