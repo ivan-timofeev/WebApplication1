@@ -47,13 +47,20 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 
-
-var staticFileOptions = new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        root: Path.Combine(builder.Environment.ContentRootPath, "files")),
-    RequestPath = "/files"
-};
-app.UseStaticFiles(staticFileOptions);
+    if (!Directory.Exists(Path.Combine(builder.Environment.ContentRootPath, "files")))
+    {
+        Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "files"));
+    }
+
+    var staticFileOptions = new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            root: Path.Combine(builder.Environment.ContentRootPath, "files")),
+        RequestPath = "/files"
+    };
+    app.UseStaticFiles(staticFileOptions);
+}
+
 
 app.Run();
