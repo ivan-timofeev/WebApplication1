@@ -3,7 +3,7 @@ using WebApplication1.Abstractions.Services;
 
 namespace WebApplication1.Services.OrdersManagementService.UpdateOrderStateStrategies;
 
-class UpdateOrderStateStrategyToAwaitingCustomerPickup
+public class UpdateOrderStateStrategyToAwaitingCustomerPickup
     : IUpdateOrderStateStrategy
 {
     public int Priority => 1;

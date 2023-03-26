@@ -5,7 +5,7 @@ using WebApplication1.Abstractions.Services;
 
 namespace WebApplication1.Services.OrdersManagementService.UpdateOrderStateStrategies;
 
-class UpdateOrderStateStrategyToCancelled
+public class UpdateOrderStateStrategyToCancelled
     : IUpdateOrderStateStrategy
 {
     private readonly ISaleItemsRepository _saleItemsRepository;
