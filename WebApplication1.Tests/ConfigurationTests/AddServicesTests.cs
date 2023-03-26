@@ -23,7 +23,7 @@ public class AddServicesTests
             .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToAssembling))
             .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToAwaitingCustomerPickup))
             .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToAwaitingForDelivery))
-            .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToCancelled))
+            .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToCanceled))
             .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToCompleted))
             .AssertServiceRegistered(typeof(UpdateOrderStateStrategyToDeliveryInProgress));
     }

@@ -18,8 +18,8 @@ public class UpdateOrderStateStrategyResolver
     public IUpdateOrderStateStrategy ResolveStrategy(OrderStateEnum actualOrderState, OrderStateEnum newOrderState)
     {
         var strategy = _registeredStrategies
-            .Where(x => x.ToState == actualOrderState 
-                && x.FromStates.Contains(newOrderState))
+            .Where(x => x.ToState == newOrderState 
+                && x.FromStates.Contains(actualOrderState))
             .MaxBy(x => x.Priority);
 
         if (strategy is not null)

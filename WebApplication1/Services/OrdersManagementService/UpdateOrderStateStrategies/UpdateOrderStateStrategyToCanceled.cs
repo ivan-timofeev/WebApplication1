@@ -5,13 +5,13 @@ using WebApplication1.Abstractions.Services;
 
 namespace WebApplication1.Services.OrdersManagementService.UpdateOrderStateStrategies;
 
-public class UpdateOrderStateStrategyToCancelled
+public class UpdateOrderStateStrategyToCanceled
     : IUpdateOrderStateStrategy
 {
     private readonly ISaleItemsRepository _saleItemsRepository;
     private readonly IDatabaseTransactionsManagementService _databaseTransactionsManagementService;
 
-    public UpdateOrderStateStrategyToCancelled(
+    public UpdateOrderStateStrategyToCanceled(
         ISaleItemsRepository saleItemsRepository,
         IDatabaseTransactionsManagementService databaseTransactionsManagementService)
     {
