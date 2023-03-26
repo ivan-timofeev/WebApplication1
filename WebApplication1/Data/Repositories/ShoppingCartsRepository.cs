@@ -37,6 +37,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     public ShoppingCart Read(Guid id)
     {
         var shoppingCart = _dbContext.ShoppingCarts
+            .Include(x => x.CartItems)
             .FirstOrDefault(x => x.Id == id)
             .ThrowIfNotFound(id);
 
@@ -46,6 +47,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     public ShoppingCart ReadByCustomer(Guid customerId)
     {
         var shoppingCart = _dbContext.ShoppingCarts
+            .Include(x => x.CartItems)
             .FirstOrDefault(x => x.CustomerId == customerId)
             .ThrowIfNotFound(customerId);
 
@@ -62,6 +64,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
         try
         {
             var shoppingCart = _dbContext.ShoppingCarts
+                .Include(x => x.CartItems)
                 .FirstOrDefault(x => x.Id == entityId)
                 .ThrowIfNotFound(entityId);
 
@@ -112,6 +115,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
         try
         {
             var shoppingCart = _dbContext.ShoppingCarts
+                .Include(x => x.CartItems)
                 .FirstOrDefault(x => x.Id == id)
                 .ThrowIfNotFound(id);
 
@@ -134,6 +138,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
             currentSaleItem.Quantity = quantity;
             currentSaleItem.AvailableQuantity = saleItem.Quantity;
 
+            _dbContext.ShoppingCarts.Update(shoppingCart);
             _dbContext.SaveChanges();
             _dbContext.Database.CommitTransaction();
             isTransactionCommitted = true;
@@ -150,6 +155,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     public void Delete(Guid entityId)
     {
         var shoppingCart = _dbContext.ShoppingCarts
+            .Include(x => x.CartItems)
             .FirstOrDefault(x => x.Id == entityId)
             .ThrowIfNotFound(entityId);
 
@@ -224,6 +230,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     private void RemoveEmptyCartItem(Guid shoppingCartId, Guid saleItemId)
     {
         var shoppingCart = _dbContext.ShoppingCarts
+            .Include(x => x.CartItems)
             .FirstOrDefault(x => x.Id == shoppingCartId)
             .ThrowIfNotFound(shoppingCartId);
 
@@ -234,6 +241,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
             return;
 
         shoppingCart.CartItems.Remove(cartItem);
+        _dbContext.ShoppingCarts.Update(shoppingCart);
         _dbContext.SaveChanges();
     }
 }
