@@ -155,6 +155,7 @@ public class ShoppingCartsRepository : IShoppingCartsRepository
     public void Delete(Guid entityId)
     {
         var shoppingCart = _dbContext.ShoppingCarts
+            .Include(x => x.CartItems)
             .FirstOrDefault(x => x.Id == entityId)
             .ThrowIfNotFound(entityId);
 
