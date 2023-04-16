@@ -1,9 +1,6 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebApplication1.Abstractions.Data.Repositories;
-using WebApplication1.Common.Extensions;
-using WebApplication1.Models;
+using WebApplication1.Abstractions.Services;
 using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
 
@@ -14,45 +11,39 @@ namespace WebApplication1.Controllers;
 public class SalePointsController : ControllerBase
 {
     private readonly ILogger<SalePointsController> _logger;
-    private readonly ISalePointsRepository _salePointsRepository;
-    private readonly IMapper _mapper;
+    private readonly ISalePointsManagementService _salePointsManagementService;
 
     public SalePointsController(
         ILogger<SalePointsController> logger,
-        ISalePointsRepository salePointsRepository,
-        IMapper mapper)
+        ISalePointsManagementService salePointsManagementService )
     {
         _logger = logger;
-        _salePointsRepository = salePointsRepository;
-        _mapper = mapper;
+        _salePointsManagementService = salePointsManagementService;
     }
 
     [HttpPost]
     public IActionResult Post(SalePointCreateVm model)
     {
-        var salePoint = _mapper.Map<SalePoint>(model);
-        var createdSalePointId = _salePointsRepository.Create(salePoint);
+        var createdSalePointId = _salePointsManagementService.CreateSalePoint(model);
         
         return CreatedAtAction(
             nameof(Get),
-            routeValues: new { id = createdSalePointId },
+            routeValues: new { salePointId = createdSalePointId },
             value: new { SalePointId = createdSalePointId});
     }
 
-    [HttpGet("{id:guid}")]
-    public IActionResult Get(Guid id)
+    [HttpGet("{salePointId:guid}")]
+    public IActionResult Get(Guid salePointId)
     {
-        var result = _salePointsRepository
-            .Read(id);
+        var salePoint = _salePointsManagementService.GetSalePoint(salePointId);
 
-        return Ok(_mapper.Map<SalePointVm>(result));
+        return Ok(salePoint);
     }
 
     [HttpPut("{id:guid}")]
     public IActionResult Put(Guid id, SalePointUpdateVm model)
     {
-        var salePoint = _mapper.Map<SalePoint>(model);
-        _salePointsRepository.Update(id, salePoint);
+        _salePointsManagementService.UpdateSalePoint(id, model);
         
         return Accepted();
     }
@@ -60,7 +51,7 @@ public class SalePointsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
-        _salePointsRepository.Delete(id);
+        _salePointsManagementService.DeleteSalePoint(id);
         
         return Accepted();
     }
@@ -70,9 +61,7 @@ public class SalePointsController : ControllerBase
         [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]
         SearchEngineFilter? filter = null, int page = 1, int pageSize = 25)
     {
-        var result = _salePointsRepository
-            .SearchWithPagination(filter, page, pageSize)
-            .MapTo<SalePointVm>();
+        var result = _salePointsManagementService.SearchSalePoints(filter, page, pageSize);
 
         return Ok(result);
     }
