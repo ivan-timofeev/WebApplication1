@@ -15,6 +15,7 @@ public static class AddAddServicesExtension
         services.AddConfiguredAutoMapper();
         services.AddSearchEngine();
 
+        services.AddTransient<IProductsManagementService, ProductsManagementService>();
         services.AddOrdersManagementService();
         services.AddScoped<IDatabaseTransactionsManagementService, DatabaseTransactionsManagementService>();
         services.AddTransient<IFilesManagementService, FilesManagementService>();
