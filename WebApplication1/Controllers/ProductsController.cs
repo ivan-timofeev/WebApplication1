@@ -1,9 +1,6 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebApplication1.Abstractions.Data.Repositories;
-using WebApplication1.Common.Extensions;
-using WebApplication1.Models;
+using WebApplication1.Abstractions.Services;
 using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
 
@@ -14,53 +11,47 @@ namespace WebApplication1.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly ILogger<ProductsController> _logger;
-    private readonly IProductsRepository _productsRepository;
-    private readonly IMapper _mapper;
+    private readonly IProductsManagementService _productsManagementService;
 
     public ProductsController(
         ILogger<ProductsController> logger,
-        IProductsRepository productsRepository,
-        IMapper mapper)
+        IProductsManagementService productsManagementService)
     {
         _logger = logger;
-        _productsRepository = productsRepository;
-        _mapper = mapper;
+        _productsManagementService = productsManagementService;
     }
 
     [HttpPost]
     public IActionResult Post(ProductCreateVm model)
     {
-        var product = _mapper.Map<Product>(model);
-        var createdProductId = _productsRepository.Create(product);
+        var createdProductId = _productsManagementService.CreateProduct(model);
 
         return CreatedAtAction(
             nameof(Get),
-            routeValues: new { id = createdProductId },
+            routeValues: new { productId = createdProductId },
             value: new { ProductId = createdProductId });
     }
 
-    [HttpGet("{id:guid}")]
-    public IActionResult Get(Guid id)
+    [HttpGet("{productId:guid}")]
+    public IActionResult Get(Guid productId)
     {
-        var result = _productsRepository
-            .Read(id);
+        var product = _productsManagementService.GetProduct(productId);
 
-        return Ok(_mapper.Map<ProductVm>(result));
+        return Ok(product);
     }
 
-    [HttpPut("{id:guid}")]
-    public IActionResult Put(Guid id, ProductUpdateVm model)
+    [HttpPut("{productId:guid}")]
+    public IActionResult Put(Guid productId, ProductUpdateVm model)
     {
-        var product = _mapper.Map<Product>(model);
-        _productsRepository.Update(id, product);
-        
+        _productsManagementService.UpdateProduct(productId, model);
+
         return Accepted();
     }
 
-    [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    [HttpDelete("{productId:guid}")]
+    public IActionResult Delete(Guid productId)
     {
-        _productsRepository.Delete(id);
+        _productsManagementService.DeleteProduct(productId);
         
         return Accepted();
     }
@@ -70,9 +61,7 @@ public class ProductsController : ControllerBase
         [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]
         SearchEngineFilter? filter = null, int page = 1, int pageSize = 25)
     {
-        var result = _productsRepository
-            .SearchWithPagination(filter, page, pageSize)
-            .MapTo<ProductVm>();
+        var result = _productsManagementService.SearchProducts(filter, page, pageSize);
 
         return Ok(result);
     }
