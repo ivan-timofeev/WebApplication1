@@ -6,8 +6,6 @@ using WebApplication1.ViewModels;
 
 namespace WebApplication1.Controllers;
 
-
-
 [ApiController]
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase
