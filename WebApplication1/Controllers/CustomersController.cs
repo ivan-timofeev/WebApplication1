@@ -1,9 +1,6 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebApplication1.Abstractions.Data.Repositories;
-using WebApplication1.Common.Extensions;
-using WebApplication1.Models;
+using WebApplication1.Abstractions.Services;
 using WebApplication1.Services.SearchEngine.Models;
 using WebApplication1.ViewModels;
 
@@ -14,52 +11,47 @@ namespace WebApplication1.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly ILogger<CustomersController> _logger;
-    private readonly ICustomersRepository _customersRepository;
-    private readonly IMapper _mapper;
+    private readonly ICustomersManagementService _customersManagementService;
 
     public CustomersController(
         ILogger<CustomersController> logger,
-        ICustomersRepository customersRepository,
-        IMapper mapper)
+        ICustomersManagementService customersManagementService)
     {
         _logger = logger;
-        _customersRepository = customersRepository;
-        _mapper = mapper;
+        _customersManagementService = customersManagementService;
     }
     
     [HttpPost]
     public IActionResult Post(CustomerCreateVm model)
     {
-        var customer = _mapper.Map<Customer>(model);
-        var createdCustomerId = _customersRepository.Create(customer);
+        var createdCustomerId = _customersManagementService.CreateCustomer(model);
         
         return CreatedAtAction(
             nameof(Get),
-            routeValues: new { id = createdCustomerId },
+            routeValues: new { customerId = createdCustomerId },
             value: new { CustomerId = createdCustomerId });
     }
     
-    [HttpGet("{id:guid}")]
-    public IActionResult Get(Guid id)
+    [HttpGet("{customerId:guid}")]
+    public IActionResult Get(Guid customerId)
     {
-        var result = _customersRepository.Read(id);
+        var customer = _customersManagementService.GetCustomer(customerId);
 
-        return Ok(_mapper.Map<CustomerVm>(result));
+        return Ok(customer);
     }
     
-    [HttpPut("{id:guid}")]
-    public IActionResult Put(Guid id, CustomerUpdateVm model)
+    [HttpPut("{customerId:guid}")]
+    public IActionResult Put(Guid customerId, CustomerUpdateVm model)
     {
-        var customer = _mapper.Map<Customer>(model);
-        _customersRepository.Update(id, customer);
+        _customersManagementService.UpdateCustomer(customerId, model);
         
         return Accepted();
     }
     
-    [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    [HttpDelete("{customerId:guid}")]
+    public IActionResult Delete(Guid customerId)
     {
-        _customersRepository.Delete(id);
+        _customersManagementService.DeleteCustomer(customerId);
         
         return Accepted();
     }
@@ -70,10 +62,8 @@ public class CustomersController : ControllerBase
         SearchEngineFilter? filter = null,
         int page = 1, int pageSize = 25)
     {
-        var result = _customersRepository
-            .SearchWithPagination(filter, page, pageSize)
-            .MapTo<CustomerVm>();
+        var customers = _customersManagementService.SearchCustomers(filter, page, pageSize);
 
-        return Ok(result);
+        return Ok(customers);
     }
 }
