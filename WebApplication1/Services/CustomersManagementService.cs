@@ -13,13 +13,16 @@ public class CustomersManagementService : ICustomersManagementService
 {
     private readonly IMapper _mapper;
     private readonly ICustomersRepository _customersRepository;
+    private readonly ICustomerOrdersRepository _customerOrdersRepository;
 
     public CustomersManagementService(
         IMapper mapper,
-        ICustomersRepository customersRepository)
+        ICustomersRepository customersRepository,
+        ICustomerOrdersRepository customerOrdersRepository)
     {
         _mapper = mapper;
         _customersRepository = customersRepository;
+        _customerOrdersRepository = customerOrdersRepository;
     }
     
     public Guid CreateCustomer(CustomerCreateVm model)
@@ -56,5 +59,17 @@ public class CustomersManagementService : ICustomersManagementService
             .MapTo<CustomerVm>();
 
         return customers;
+    }
+
+    public PersonalAreaVm GetCustomerOrders(Guid customerId)
+    {
+        var customer = _customersRepository.Read(customerId);
+        var orders = _customerOrdersRepository.GetCustomerOrders(customer);
+
+        var model = new PersonalAreaVm(
+            Customer: _mapper.Map<CustomerVm>(customer),
+            CustomerOrders: _mapper.Map<CustomerOrderVm[]>(orders));
+
+        return model;
     }
 }
