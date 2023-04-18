@@ -11,4 +11,5 @@ public interface ICustomersManagementService
     void UpdateCustomer(Guid customerId, CustomerUpdateVm model);
     void DeleteCustomer(Guid customerId);
     public PagedModel<CustomerVm> SearchCustomers(SearchEngineFilter? filter, int page, int pageSize);
+    public PersonalAreaVm GetCustomerOrders(Guid customerId);
 }

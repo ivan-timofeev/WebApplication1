@@ -1,7 +1,5 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Abstractions.Data.Repositories;
-using WebApplication1.ViewModels;
+using WebApplication1.Abstractions.Services;
 
 namespace WebApplication1.Controllers;
 
@@ -9,33 +7,18 @@ namespace WebApplication1.Controllers;
 [Route("api/Customers/{customerId:guid}/Orders")]
 public class CustomerOrdersController : ControllerBase
 {
-    private readonly ILogger<CustomersController> _logger;
-    private readonly ICustomerOrdersRepository _customerOrdersRepository;
-    private readonly ICustomersRepository _customersRepository;
-    private readonly IMapper _mapper;
+    private readonly ICustomersManagementService _customersManagementService;
 
-    public CustomerOrdersController(
-        ILogger<CustomersController> logger,
-        ICustomerOrdersRepository customerOrdersRepository,
-        ICustomersRepository customersRepository,
-        IMapper mapper)
+    public CustomerOrdersController(ICustomersManagementService customersManagementService)
     {
-        _logger = logger;
-        _customerOrdersRepository = customerOrdersRepository;
-        _customersRepository = customersRepository;
-        _mapper = mapper;
+        _customersManagementService = customersManagementService;
     }
 
     [HttpGet]
     public IActionResult Get(Guid customerId)
     {
-        var customer = _customersRepository.Read(customerId);
-        var orders = _customerOrdersRepository.GetCustomerOrders(customer);
+        var result = _customersManagementService.GetCustomerOrders(customerId);
 
-        var model = new PersonalAreaVm(
-            Customer: _mapper.Map<CustomerVm>(customer),
-            CustomerOrders: _mapper.Map<CustomerOrderVm[]>(orders));
-
-        return Ok(model);
+        return Ok(result);
     }
 }
